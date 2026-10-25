@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2C7A58">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Brzuszek">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+<title>Dziennik Brzuszka</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one-column phone app, sticky header, bottom tab bar; content max 680px */
+:root{
+  --bg:#F3F6F2; --surface:#FFFFFF; --fg:#1B2721; --muted:#5C6B63; --line:#DCE4DE;
+  --accent:#2C7A58; --accent-soft:#DDEFE5; --pain:#B8461B; --pain-soft:#F8E3D8;
+  --warn:#A86A00; --warn-soft:#F7ECD2; --mood:#5B5BB0; --mood-soft:#E5E5F6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121A16; --surface:#1A2520; --fg:#E6EEE9; --muted:#9DB0A6; --line:#2C3A33;
+  --accent:#5DC495; --accent-soft:#1F3A2D; --pain:#F08A5D; --pain-soft:#3D2419;
+  --warn:#E5B24F; --warn-soft:#3A2F17; --mood:#A3A3F0; --mood-soft:#26264A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121A16; --surface:#1A2520; --fg:#E6EEE9; --muted:#9DB0A6; --line:#2C3A33;
+  --accent:#5DC495; --accent-soft:#1F3A2D; --pain:#F08A5D; --pain-soft:#3D2419;
+  --warn:#E5B24F; --warn-soft:#3A2F17; --mood:#A3A3F0; --mood-soft:#26264A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));
+  padding-block:0 96px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:680px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-block:12px 8px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
+h1{font:800 1.5rem/1.1 var(--display);margin:0;letter-spacing:-.01em}
+h2{font:700 1.15rem/1.2 var(--display);margin:0;text-wrap:balance}
+h3{font:700 1rem/1.2 var(--display);margin:0}
+.sync,.muted{font-size:.8rem;color:var(--muted)}
+section.view{display:flex;flex-direction:column;gap:14px;padding-block:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
+.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+input,select,textarea{font:16px var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 130px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:6px 12px;font:15px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip.mood[aria-pressed="true"]{background:var(--mood);border-color:var(--mood)}
+.chip.add{border-style:dashed;color:var(--muted)}
+.chipgroup{display:flex;flex-direction:column;gap:4px}
+.chipgroup>span{font-size:.8rem;color:var(--muted)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.scale button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 0;font:700 1.05rem var(--display);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0}
+.scale button small{font:400 .68rem var(--body);color:var(--muted)}
+.scale.pain button[aria-pressed="true"]{background:var(--pain);border-color:var(--pain);color:var(--surface)}
+.scale.mood button[aria-pressed="true"]{background:var(--mood);border-color:var(--mood);color:var(--surface)}
+.scale button[aria-pressed="true"] small{color:inherit}
+.btn{border:0;border-radius:12px;padding:12px 14px;font:700 1rem var(--body);background:var(--accent);color:var(--surface);cursor:pointer}
+.btn.pain{background:var(--pain)}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:10px;padding:7px 12px;font:15px var(--body);cursor:pointer}
+.ghost.small{padding:4px 10px;font-size:.85rem}
+.ghost.danger{color:var(--pain);border-color:var(--pain-soft)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:20;max-width:calc(100% - 32px)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding:6px max(16px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px))}
+nav.tabs button{border:0;background:transparent;color:var(--muted);font:700 .95rem var(--body);padding:10px 4px;border-radius:10px;cursor:pointer}
+nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+.daynav{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center}
+.daynav button{height:44px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;font:700 1.2rem var(--display);cursor:pointer}
+.daynav .mid{display:flex;flex-direction:column;align-items:center;gap:2px}
+.daynav .mid b{font:700 1.05rem var(--display);text-align:center}
+.daynav input{max-width:180px;padding:4px 8px;font-size:.9rem;text-align:center}
+.slot{display:flex;flex-direction:column;gap:6px;padding-block:8px;border-top:1px solid var(--line)}
+.slot:first-of-type{border-top:0;padding-top:0}
+.slot-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.slot-h h3 span{font:400 .8rem var(--body);color:var(--muted);margin-left:6px}
+.dish{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:6px 10px;background:var(--bg);border-radius:10px}
+.dish .what{min-width:0;overflow-wrap:anywhere}
+.dish small{display:block;color:var(--muted);font-size:.78rem}
+.x{border:0;background:transparent;color:var(--muted);font-size:.95rem;cursor:pointer;padding:4px 8px;border-radius:8px;white-space:nowrap}
+.x.armed{background:var(--pain-soft);color:var(--pain);font-weight:700}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;vertical-align:1px}
+.pill.p{background:var(--pain-soft);color:var(--pain)}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.pill.m{background:var(--mood-soft);color:var(--mood)}
+.editor{display:flex;flex-direction:column;gap:10px;border:1px dashed var(--accent);border-radius:12px;padding:10px}
+.empty{color:var(--muted);margin:0}
+.note{font-size:.85rem;color:var(--muted);background:var(--warn-soft);border-radius:10px;padding:10px 12px;margin:0}
+.banner{font-size:.85rem;background:var(--accent-soft);color:var(--fg);border-radius:10px;padding:10px 12px}
+.score{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.score .num{font:800 3rem/1 var(--display);font-variant-numeric:tabular-nums}
+.meter{display:flex;flex-direction:column;gap:3px}
+.meter .top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.bar>i.w{background:var(--warn)}.bar>i.p{background:var(--pain)}
+.gaps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td{white-space:nowrap}td.name{white-space:normal;min-width:140px}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.n{text-align:right}
+.imp-day{display:flex;flex-direction:column;gap:6px;padding-block:10px;border-top:1px solid var(--line)}
+.imp-day:first-child{border-top:0}
+.imp-row{display:grid;grid-template-columns:24px 92px 1fr;gap:8px;align-items:center}
+.imp-row .slotname{font-size:.8rem;color:var(--muted)}
+.imp-row input[type=text]{padding:6px 8px;font-size:.92rem}
+.imp-row.off input[type=text]{opacity:.45;text-decoration:line-through}
+.painrow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 10px;border-radius:10px;background:var(--pain-soft)}
+details summary{cursor:pointer;color:var(--accent);font-weight:700}
+@media (max-width:420px){.imp-row{grid-template-columns:24px 1fr}.imp-row .slotname{grid-column:2}.imp-row input[type=text]{grid-column:1 / -1}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Dziennik Brzuszka</h1>
+    <span class="sync" id="sync">Wczytywanie…</span>
+  </header>
+
+  <section class="view" id="v-day">
+    <div class="daynav">
+      <button id="d-prev" aria-label="Poprzedni dzień">‹</button>
+      <div class="mid"><b id="d-label"></b><input type="date" id="d-date" aria-label="Wybierz dzień"></div>
+      <button id="d-next" aria-label="Następny dzień">›</button>
+    </div>
+
+    <div class="card" id="c-meals">
+      <div class="card-h"><h2>Posiłki</h2><span id="kg-tools"></span></div>
+      <div id="slots"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Suplementy</h2><span class="muted">stuknij, co dziś podałeś</span></div>
+      <div class="chips" id="supps"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Samopoczucie i zdarzenia</h2></div>
+      <div class="scale mood" id="mood-scale"></div>
+      <span class="label">Co się działo?</span>
+      <div class="chips" id="mood-events"></div>
+      <label>Notatka<input id="mood-note" placeholder="np. pokłócił się z kolegą przy obiedzie"></label>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Ból brzucha</h2><button class="ghost small" id="pain-toggle">+ Dodaj ból</button></div>
+      <div id="pains"></div>
+      <form id="f-pain" class="editor" hidden>
+        <label>Godzina<input type="time" id="p-time" required></label>
+        <span class="label">Natężenie</span>
+        <div class="scale pain" id="p-scale"></div>
+        <div class="row">
+          <label>Jak długo<select id="p-dur"><option value="15">do 15 min</option><option value="30">ok. 30 min</option><option value="60">ok. 1 h</option><option value="120">2 h i dłużej</option></select></label>
+          <label>Gdzie<select id="p-loc"><option>Nie wiem</option><option>Wokół pępka</option><option>Góra brzucha</option><option>Dół brzucha</option><option>Cały brzuch</option></select></label>
+        </div>
+        <span class="label">Inne objawy</span>
+        <div class="chips" id="p-sym"></div>
+        <label>Notatka<input id="p-note" placeholder="np. po powrocie z przedszkola"></label>
+        <div class="row"><button class="btn pain" type="submit">Zapisz ból</button><button class="ghost" type="button" id="pain-cancel">Anuluj</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Orientacyjnie w tym dniu</h2></div>
+      <div id="day-nutri"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-import" hidden>
+    <div class="card">
+      <h2>Jadłospis z przedszkola</h2>
+      <p class="empty">Wgraj PDF z jadłospisem tygodniowym. Przed zapisaniem odznacz posiłki, których syn nie jadł, i popraw nazwy, jeśli coś odczytało się źle. Pojedyncze posiłki usuniesz też później w widoku Dzień.</p>
+      <label>Plik PDF<input type="file" id="imp-file" accept="application/pdf,.pdf"></label>
+      <div id="imp-status" class="muted"></div>
+    </div>
+    <div class="card" id="imp-preview" hidden>
+      <div class="card-h"><h2>Podgląd</h2><label style="flex-direction:row;align-items:center;gap:8px">Poniedziałek tygodnia<input type="date" id="imp-start" style="width:auto"></label></div>
+      <div id="imp-days"></div>
+      <button class="btn" id="imp-save">Zapisz zaznaczone posiłki</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-insights" hidden>
+    <div id="demo-banner" class="banner" hidden>Pokazuję <b>przykładowe dane</b>, bo dziennik jest jeszcze pusty. Twoje wnioski pojawią się po kilku dniach wpisów.</div>
+    <div class="card">
+      <h2>Czy dieta jest zdrowa?</h2>
+      <label style="max-width:220px">Okres<select id="i-range"><option value="7">ostatnie 7 dni</option><option value="14" selected>ostatnie 14 dni</option><option value="30">ostatnie 30 dni</option></select></label>
+      <div id="diet"></div>
+    </div>
+    <div class="card">
+      <h2>Co poprzedza ból brzucha: jedzenie</h2>
+      <label style="max-width:240px">Okno czasowe przed bólem<select id="i-win"><option value="3">0–3 h</option><option value="6" selected>0–6 h</option><option value="12">0–12 h</option><option value="24">0–24 h</option></select></label>
+      <div id="corr"></div>
+    </div>
+    <div class="card">
+      <h2>Co poprzedza ból brzucha: emocje i zdarzenia</h2>
+      <div id="corr-mood"></div>
+    </div>
+    <p class="note">To wskazówki do rozmowy z pediatrą, a nie diagnoza. Wzór oznacza tylko, że coś często pojawiało się przed bólem. Silny ból, gorączka, wymioty, krew w stolcu albo spadek wagi to powód, by od razu skontaktować się z lekarzem.</p>
+    <div class="card">
+      <h2>Kopia zapasowa</h2>
+      <p class="empty" id="backup-info"></p>
+      <div class="row"><button class="ghost" id="b-export">Pobierz kopię (JSON)</button><label class="ghost" style="flex-direction:row;justify-content:center;cursor:pointer;color:var(--fg);font-size:15px">Wczytaj kopię<input type="file" id="b-import" accept="application/json,.json" hidden></label></div>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="Widoki">
+  <button id="t-day" data-v="day" aria-current="page">Dzień</button>
+  <button id="t-import" data-v="import">Import</button>
+  <button id="t-insights" data-v="insights">Wnioski</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ================= Słowniki =================
+const SLOTS = [["sniadanie","Śniadanie","08:00"],["drugie","II śniadanie","10:00"],["obiad","Obiad","12:30"],["przekaska","Przekąski","15:00"],["kolacja","Kolacja","18:30"]];
+const SLOT_LABEL = Object.fromEntries(SLOTS.map(s=>[s[0],s[1]]));
+const SLOT_TIME = Object.fromEntries(SLOTS.map(s=>[s[0],s[2]]));
+const LEGACY_SLOT = {"Śniadanie":"sniadanie","II śniadanie":"drugie","Obiad":"obiad","Podwieczorek":"przekaska","Przekąska":"przekaska","Kolacja":"kolacja"};
+const ALLERGENS = {1:"gluten",2:"skorupiaki",3:"jaja",4:"ryby",5:"orzeszki ziemne",6:"soja",7:"mleko / laktoza",8:"orzechy",9:"seler",10:"gorczyca",11:"sezam",12:"siarczyny",13:"łubin",14:"mięczaki"};
+const CATALOG = {
+  "Zboża i pieczywo": ["owsianka","płatki z mlekiem","kanapka","chleb razowy","bułka","kasza","ryż","makaron","naleśniki","pierogi"],
+  "Nabiał i jajka": ["mleko","jogurt naturalny","jogurt owocowy","kefir","ser żółty","twarożek","jajko"],
+  "Mięso i ryby": ["kurczak","indyk","wieprzowina","wołowina","ryba","wędlina","parówki"],
+  "Warzywa": ["marchewka","ogórek","pomidor","papryka","brokuł","zupa warzywna","ziemniaki","fasola / groch","kukurydza"],
+  "Owoce": ["jabłko","banan","gruszka","truskawki","winogrona","mandarynka","borówki","kiwi"],
+  "Słodkie i przekąski": ["ciastka","czekolada","cukierki / żelki","lody","drożdżówka","chrupki","chipsy","frytki","pizza"],
+  "Picie": ["woda","sok","kakao","słodki napój"]
+};
+const DEFAULT_SUPPS = ["Witamina D","Omega-3 / DHA","Probiotyk","Żelazo","Multiwitamina","Wapń","Magnez"];
+const MOOD_LEVELS = [[1,"Bardzo źle"],[2,"Słabo"],[3,"Zwyczajnie"],[4,"Dobrze"],[5,"Świetnie"]];
+const MOOD_EVENTS = ["Afera w przedszkolu","Kłótnia z rówieśnikiem","Kłótnia w domu","Płacz przy rozstaniu","Nowa sytuacja / zmiana","Pośpiech, stres rano","Zmęczenie, mało snu","Infekcja / katar","Duże emocje / ekscytacja","Zaparcie / brak kupy"];
+const SYMPTOMS = ["wzdęcia","nudności","wymioty","biegunka","zaparcie","gorączka","płacz"];
+
+// Grupy produktów rozpoznawane po fragmentach słów (orientacyjnie)
+const GROUP_RULES = [
+  ["warzywa",/warzyw|marchew|ogór|pomidor|burak|buracz|cukini|szpinak|kapust|kapuś|brokuł|kalafior|sałat|papryk|cebul|dyni|dynia|groszek|fasolk|pietruszk|jarzyn|mizeri|surówk|kukurydz|rzodkiew|natk|seler|kiszon|por /],
+  ["owoce",/owoc|jabł|jabl|banan|grusz|brzoskw|trusk|winogr|daktyl|malin|borówk|jagod|śliw|morel|kiwi|pomarańcz|mandaryn|arbuz|melon|porzecz|wiśn|czereśn|rodzyn|ananas|mango/],
+  ["zboza",/kasz|ryż|makaron|pieczyw|chleb|bułk|płatk|owsian|naleśnik|gofr|ciast|pierog|klusk|kopytk|spaghetti|penne|tortill|grzank|pizza|krupnik|kanapk|chrupk|drożdżówk|rogal|manna/],
+  ["pelne",/gryczan|jęczmien|owsian|pełnoziarn|razow|graham|orkisz|pęczak|jagiel|brązowy ryż|mieszane/],
+  ["nabial",/mlek|mleczn|jogurt|twaróg|twarog|twarożk|ser |serow|serem|ser$|sera|kefir|maślank|śmietan|feta|fetą|mozzarell|budyń|kakao|płatki z mlekiem/],
+  ["mieso",/wieprz|wołow|szynk|schab|karkówk|bolognese|mielon|gulasz|kiełbas|boczek|pasztet|parówk|wędlin|kabanos|cielęc/],
+  ["drob",/kurczak|kurcz|indyk|drob|drób|piersi/],
+  ["ryba",/ryb|tuńczyk|łosoś|dorsz|mintaj|makrel|śledź|pstrąg|sardyn|miruna|morszczuk/],
+  ["jaja",/jaj|omlet|jajeczn/],
+  ["straczki",/fasol(?!k)|groch(?!ek)|soczewic|ciecierz|hummus|cieciork/],
+  ["slodkie",/kisiel|ciast|ciastk|dżem|czekolad|cukier|cukierk|żelk|lody|deser|budyń|drożdżówk|pączek|rogal|nutell|miód|słodk|syrop|truskawkow|jogurt owocowy|kakao|gofr/],
+  ["napoje_slodkie",/sok|napój|napoj|lemoniad|kompot/],
+  ["smazone",/frytk|panierow|smażon|chips|nugget|pizza|placki ziemniaczane/],
+  ["przetworzone",/pasztet|parówk|kiełbas|wędlin|kabanos|salami|nugget|chips|chrupk/],
+  ["ziemniaki",/ziemniak|puree|frytk|kopytk/],
+  ["witc",/papryk|trusk|kiwi|pomarańcz|mandaryn|porzecz|brokuł|kalafior|natk|pietruszk|kiszon|kapust|kapuś|pomidor|cytryn|malin/],
+  ["zielone",/szpinak|brokuł|jarmuż|natk|sałat|groszek/]
+];
+const GROUP_LABEL = {warzywa:"Warzywa",owoce:"Owoce",zboza:"Zboża",pelne:"Pełne ziarno",nabial:"Nabiał",mieso:"Mięso czerwone / wędliny",drob:"Drób",ryba:"Ryba",jaja:"Jajka",straczki:"Strączki",slodkie:"Słodkie",napoje_slodkie:"Soki i słodkie napoje",smazone:"Smażone / panierowane",przetworzone:"Mocno przetworzone",ziemniaki:"Ziemniaki",witc:"Bogate w witaminę C",zielone:"Zielone warzywa"};
+
+function dishGroups(name, allergens=[]){
+  let n = " "+name.toLowerCase()+" ";
+  const g = {};
+  if (/frytki z surowych warzyw|surowe warzywa|słupki warzyw/.test(n)) { g.warzywa=1; g.witc=1; n = n.replace(/frytki z surowych warzyw/,""); }
+  for (const [k,re] of GROUP_RULES) if (re.test(n)) g[k]=1;
+  if (g.slodkie && /gofry z cukini|z fetą|ze szpinakiem/.test(n)) delete g.slodkie;
+  if (allergens.includes(7) && !g.nabial) g.nabial=0.5;
+  if (allergens.includes(3) && !g.jaja) g.jaja=0.3;
+  if (allergens.includes(1) && !g.zboza) g.zboza=0.5;
+  if (allergens.includes(4) && !g.ryba) g.ryba=1;
+  if (/mix owoców|owoce do wyboru/.test(n)) g.owoce=1.5;
+  return g;
+}
+
+// Składniki: punkty porcji z grup → orientacyjna ocena dnia
+const NUTRIENTS = [
+  {k:"vegfruit", name:"Warzywa i owoce", unit:"porcji", target:5, from:{warzywa:1,owoce:1}, tip:"dodaj warzywo do kolacji albo owoc na przekąskę"},
+  {k:"protein", name:"Białko", unit:"pkt", target:4, from:{nabial:1,mieso:1.5,drob:1.5,ryba:1.5,jaja:1,straczki:1,zboza:0.3}, tip:"jajko, twarożek, mięso albo ryba"},
+  {k:"calcium", name:"Wapń", unit:"pkt", target:3, from:{nabial:1,zielone:0.3,ryba:0.2,straczki:0.2}, tip:"jogurt, kefir, ser albo mleko (2–3 porcje nabiału dziennie)", supp:{"Wapń":3}},
+  {k:"iron", name:"Żelazo", unit:"pkt", target:2.5, from:{mieso:1,drob:0.5,ryba:0.5,jaja:0.5,straczki:1,pelne:0.5,zielone:0.5}, tip:"mięso, jajka, kasza gryczana, strączki; witamina C pomaga je wchłonąć", supp:{"Żelazo":2.5,"Multiwitamina":0.8}},
+  {k:"fiber", name:"Błonnik", unit:"pkt", target:6, from:{warzywa:1,owoce:1,pelne:1.5,straczki:1.5,zboza:0.3,ziemniaki:0.3}, tip:"owsianka, pieczywo razowe, kasze, warzywa"},
+  {k:"vitc", name:"Witamina C", unit:"pkt", target:3, from:{owoce:1,warzywa:0.6,witc:1,ziemniaki:0.3}, tip:"papryka, kiwi, truskawki, kiszonki", supp:{"Multiwitamina":2}},
+  {k:"vitd", name:"Witamina D", unit:"pkt", target:2, from:{ryba:1.5,jaja:0.3,nabial:0.1}, tip:"w Polsce zwykle zaleca się suplementację witaminy D od września do kwietnia (dawkę ustal z pediatrą)", supp:{"Witamina D":2,"Multiwitamina":1}},
+  {k:"omega", name:"Omega-3 (DHA)", unit:"pkt", target:1, from:{ryba:1.5}, tip:"ryba morska 1–2 razy w tygodniu albo suplement DHA", supp:{"Omega-3 / DHA":1}, weekly:true},
+];
+const SUGAR = {k:"sugar", name:"Słodycze i słodkie napoje", from:{slodkie:1,napoje_slodkie:0.7}, limit:1};
+
+// ================= Narzędzia =================
+const $ = s => document.querySelector(s);
+function el(tag, attrs={}, ...kids){ const e=document.createElement(tag); for (const k in attrs){ const v=attrs[k]; if (v==null||v===false) continue; if(k==="class") e.className=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v); else e.setAttribute(k, v===true?"":v); } for (const c of kids.flat()) if(c!=null&&c!==false) e.append(c); return e; }
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => ymd(new Date());
+const addDays = (s,n) => { const d=new Date(s+"T12:00"); d.setDate(d.getDate()+n); return ymd(d); };
+const nowHM = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-zA-Z0-9-]/g,"");
+const fmt1 = x => x.toFixed(1).replace(".",",");
+let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, 2800); }
+
+// Przycisk usuwania z potwierdzeniem drugim stuknięciem
+function delBtn(label, onConfirm, text="✕"){
+  const b = el("button",{class:"x","aria-label":label,title:label}, text);
+  b.onclick = () => { if (b.classList.contains("armed")) { onConfirm(); return; } b.classList.add("armed"); b.textContent="Usuń?"; setTimeout(()=>{ b.classList.remove("armed"); b.textContent=text; },3000); };
+  return b;
+}
+
+// ================= Zapis =================
+let entries = [], store = null, downloads = null, mode = "local";
+const LS_KEY = "brzuszek.entries.v2";
+function lsLoad(){ try { const v2=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if (v2) return v2; const v1=JSON.parse(localStorage.getItem("brzuszek.entries.v1")||"[]"); return v1; } catch { return []; } }
+function lsSave(){ try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); } catch { toast("Nie udało się zapisać w pamięci telefonu"); } }
+
+function normalize(e){
+  const x = {...e};
+  if (x.type==="meal"){
+    if (!x.slot) x.slot = LEGACY_SLOT[x.meal] || "przekaska";
+    if (!x.dishes) x.dishes = (x.items||[]).map(n=>({name:n, allergens:[]}));
+    if (!x.date && x.ts) x.date = ymd(new Date(x.ts));
+    if (!x.ts) x.ts = new Date(x.date+"T"+(x.time||SLOT_TIME[x.slot])).toISOString();
+  }
+  if (x.type==="pain" && !x.date) x.date = ymd(new Date(x.ts));
+  return x;
+}
+
+const chains = {};
+function serial(id, fn){ const p=(chains[id]||Promise.resolve()).then(fn,fn); chains[id]=p.catch(()=>{}); return p; }
+async function put(e){
+  return serial(e.id, async () => {
+    if (store){ try { const {id,...body}=e; await store.doc(id).set(body); return true; } catch(err){ toast(err?.code==="quota_exceeded"?"Brak miejsca w zapisie":"Nie udało się zapisać. Spróbuj jeszcze raz."); return false; } }
+    const i=entries.findIndex(x=>x.id===e.id); if (i>=0) entries[i]=e; else entries.push(e); lsSave(); renderAll(); return true;
+  });
+}
+async function del(id){
+  return serial(id, async () => {
+    if (store){ try { await store.doc(id).delete(); } catch { toast("Nie udało się usunąć"); } return; }
+    entries = entries.filter(x=>x.id!==id); lsSave(); renderAll();
+  });
+}
+async function initStore(){
+  entries = lsLoad().map(normalize); renderAll();
+  let db = null;
+  try { db = window.claude?.use ? await window.claude.use("db") : null; } catch {}
+  try { downloads = window.claude?.use ? await window.claude.use("downloads") : null; } catch {}
+  if (!db){ mode="local"; setSync(); try { navigator.storage?.persist?.(); } catch {} return; }
+  mode="cloud"; store = db.collection("entries");
+  store.onSnapshot(snap => { entries = snap.docs.map(d => normalize({id:d.id, ...d.data()})); setSync(); renderAll(); },
+    () => { $("#sync").textContent = "Brak połączenia z zapisem"; });
+}
+function setSync(){
+  const n = entries.filter(e=>e.type!=="settings").length;
+  $("#sync").textContent = (mode==="cloud" ? "Zapis w chmurze" : "Zapis w tym urządzeniu") + " · " + n + " wpisów";
+  $("#backup-info").textContent = mode==="cloud"
+    ? "Wpisy są zapisane na Twoim koncie Claude. Kopia przyda się, gdy zechcesz przenieść dane do wersji na telefonie."
+    : "Wpisy są tylko w pamięci tej przeglądarki. Dodaj stronę do ekranu głównego i co jakiś czas pobieraj kopię, żeby ich nie stracić.";
+}
+
+// ================= Stan widoku =================
+let curDate = today();
+let editor = null; // {slot, picked:Set, extra:"", amount:"1", time:""}
+let painInt = 3, painSyms = new Set();
+
+const dayEntries = (type, date=curDate) => entries.filter(e=>e.type===type && e.date===date);
+const settings = () => entries.find(e=>e.id==="settings") || {id:"settings", type:"settings", supplements:[]};
+
+// ================= Widok dnia =================
+function renderDay(){
+  const d = new Date(curDate+"T12:00");
+  const rel = curDate===today() ? "Dziś, " : curDate===addDays(today(),-1) ? "Wczoraj, " : "";
+  const lbl = rel + d.toLocaleDateString("pl-PL",{weekday:"long", day:"numeric", month:"long"});
+  $("#d-label").textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+  $("#d-date").value = curDate;
+  renderSlots(); renderSupps(); renderMood(); renderPains(); renderDayNutri();
+}
+
+function renderSlots(){
+  const box = $("#slots"); box.replaceChildren();
+  const meals = dayEntries("meal");
+  const kg = meals.filter(m=>m.source==="przedszkole");
+  const tools = $("#kg-tools"); tools.replaceChildren();
+  if (kg.length) tools.append(delBtn("Usuń wszystkie posiłki z przedszkola w tym dniu", async () => { for (const m of kg) await del(m.id); toast("Usunięto posiłki z przedszkola"); }, "Nie był w przedszkolu"));
+  for (const [slot,label] of SLOTS){
+    const list = meals.filter(m=>m.slot===slot).sort((a,b)=>a.ts.localeCompare(b.ts));
+    const head = el("div",{class:"slot-h"}, el("h3",{}, label, list.length? null : el("span",{},"brak wpisu")),
+      el("div",{class:"row",style:"flex:none;gap:4px"},
+        list.length ? delBtn("Usuń cały posiłek: "+label, async () => { for (const m of list) await del(m.id); toast(label+" usunięte"); }, "Usuń posiłek") : null,
+        editor?.slot===slot ? null : el("button",{class:"ghost small",onclick:()=>{ editor={slot,picked:new Set(),extra:"",amount:"1",time:""}; renderSlots(); }}, "+ Dodaj")));
+    const wrap = el("div",{class:"slot"}, head);
+    for (const m of list) for (let i=0;i<m.dishes.length;i++){
+      const dsh = m.dishes[i];
+      const meta = [m.source==="przedszkole" ? "przedszkole" : null, m.amount && m.amount<1 ? (m.amount===0.5?"zjadł połowę":"zjadł trochę") : null,
+        dsh.allergens?.length ? "alergeny: "+dsh.allergens.map(a=>ALLERGENS[a]||a).join(", ") : null, m.note||null].filter(Boolean).join(" · ");
+      wrap.append(el("div",{class:"dish"}, el("div",{class:"what"}, dsh.name, meta? el("small",{},meta):null),
+        delBtn("Usuń danie", async () => {
+          if (m.dishes.length<=1) await del(m.id); else await put({...m, dishes:m.dishes.filter((_,j)=>j!==i)});
+        })));
+    }
+    if (editor?.slot===slot) wrap.append(renderEditor());
+    box.append(wrap);
+  }
+}
+
+function renderEditor(){
+  const ed = editor;
+  const box = el("div",{class:"editor"});
+  for (const g in CATALOG){
+    const chips = el("div",{class:"chips"});
+    for (const name of CATALOG[g]){
+      const b = el("button",{type:"button",class:"chip","aria-pressed":String(ed.picked.has(name))}, name);
+      b.onclick = () => { ed.picked.has(name)?ed.picked.delete(name):ed.picked.add(name); b.setAttribute("aria-pressed", ed.picked.has(name)); };
+      chips.append(b);
+    }
+    box.append(el("div",{class:"chipgroup"}, el("span",{},g), chips));
+  }
+  const extra = el("input",{id:"ed-extra",placeholder:"np. zupa pomidorowa, kotlet mielony",value:ed.extra});
+  extra.oninput = () => ed.extra = extra.value;
+  const amount = el("select",{id:"ed-amount"}, el("option",{value:"1"},"Całość"), el("option",{value:"0.5"},"Połowę"), el("option",{value:"0.25"},"Trochę"));
+  amount.value = ed.amount; amount.onchange = () => ed.amount = amount.value;
+  const time = el("input",{type:"time",id:"ed-time",value:ed.time||SLOT_TIME[ed.slot]});
+  time.onchange = () => ed.time = time.value;
+  box.append(el("label",{},"Coś innego (oddziel przecinkami)", extra),
+    el("div",{class:"row"}, el("label",{},"Ile zjadł", amount), el("label",{},"Godzina", time)),
+    el("div",{class:"row"},
+      el("button",{class:"btn",type:"button",onclick: async () => {
+        const names = [...ed.picked, ...ed.extra.split(",").map(s=>s.trim()).filter(Boolean)];
+        if (!names.length){ toast("Wybierz albo wpisz przynajmniej jedno danie"); return; }
+        const t = ed.time || SLOT_TIME[ed.slot];
+        const e = {id:uid(), type:"meal", date:curDate, slot:ed.slot, time:t, ts:new Date(curDate+"T"+t).toISOString(),
+          dishes:names.map(n=>({name:n, allergens:[]})), amount:Number(ed.amount), source:"manual", createdAt:new Date().toISOString()};
+        editor = null;
+        if (await put(e)) toast(SLOT_LABEL[e.slot]+" zapisane");
+        renderSlots();
+      }}, "Zapisz"),
+      el("button",{class:"ghost",type:"button",onclick:()=>{ editor=null; renderSlots(); }}, "Anuluj")));
+  return box;
+}
+
+function renderSupps(){
+  const box = $("#supps"); box.replaceChildren();
+  const doc = entries.find(e=>e.id==="supp-"+curDate);
+  const taken = new Set(doc?.items||[]);
+  const all = [...new Set([...DEFAULT_SUPPS, ...(settings().supplements||[]), ...taken])];
+  for (const s of all){
+    const b = el("button",{type:"button",class:"chip","aria-pressed":String(taken.has(s))}, s);
+    b.onclick = async () => {
+      taken.has(s)?taken.delete(s):taken.add(s);
+      const items=[...taken];
+      if (items.length) await put({id:"supp-"+curDate, type:"supp", date:curDate, items}); else await del("supp-"+curDate);
+    };
+    box.append(b);
+  }
+  const addB = el("button",{type:"button",class:"chip add"}, "+ inny");
+  addB.onclick = () => {
+    const inp = el("input",{placeholder:"nazwa suplementu",style:"width:auto;flex:1 1 160px"});
+    const ok = el("button",{class:"ghost small",type:"button"},"Dodaj");
+    ok.onclick = async () => { const v=inp.value.trim(); if(!v) return; const st=settings(); await put({...st, supplements:[...new Set([...(st.supplements||[]), v])]}); };
+    addB.replaceWith(inp, ok); inp.focus();
+  };
+  box.append(addB);
+}
+
+function moodDoc(){ return entries.find(e=>e.id==="mood-"+curDate) || {id:"mood-"+curDate, type:"mood", date:curDate, level:null, events:[], note:""}; }
+async function saveMood(patch){ const m={...moodDoc(), ...patch}; if (!m.level && !m.events.length && !m.note) await del(m.id); else await put(m); }
+function renderMood(){
+  const m = moodDoc();
+  const sc = $("#mood-scale"); sc.replaceChildren();
+  for (const [v,label] of MOOD_LEVELS){
+    sc.append(el("button",{type:"button","aria-pressed":String(m.level===v),onclick:()=>saveMood({level: m.level===v?null:v})}, String(v), el("small",{},label)));
+  }
+  const ev = $("#mood-events"); ev.replaceChildren();
+  for (const s of MOOD_EVENTS){
+    const on = m.events.includes(s);
+    ev.append(el("button",{type:"button",class:"chip mood","aria-pressed":String(on),onclick:()=>saveMood({events: on? m.events.filter(x=>x!==s) : [...m.events, s]})}, s));
+  }
+  const note = $("#mood-note");
+  if (document.activeElement!==note) note.value = m.note||"";
+  note.onchange = () => saveMood({note: note.value.trim()});
+}
+
+function renderPains(){
+  const box = $("#pains"); box.replaceChildren();
+  const list = dayEntries("pain").sort((a,b)=>a.ts.localeCompare(b.ts));
+  if (!list.length) box.append(el("p",{class:"empty"},"Brak bólu w tym dniu."));
+  for (const p of list){
+    const t = new Date(p.ts);
+    box.append(el("div",{class:"painrow"},
+      el("div",{}, el("b",{}, `${pad(t.getHours())}:${pad(t.getMinutes())}`), " ", el("span",{class:"pill p"},"Ból "+p.intensity+"/5"), " ", p.location&&p.location!=="Nie wiem"?p.location:"",
+        el("small",{style:"display:block;color:var(--muted)"}, [p.duration>=120?"2 h+":p.duration+" min", ...(p.symptoms||[]), p.note].filter(Boolean).join(" · "))),
+      delBtn("Usuń ból", ()=>del(p.id))));
+  }
+}
+
+function setupPainForm(){
+  const sc = $("#p-scale");
+  const names = ["lekki","","średni","","b. silny"];
+  for (let i=1;i<=5;i++){ const b=el("button",{type:"button","aria-pressed":String(i===3),"aria-label":"Natężenie "+i}, String(i), el("small",{},names[i-1]||" "));
+    b.onclick=()=>{ painInt=i; [...sc.children].forEach((c,j)=>c.setAttribute("aria-pressed", j===i-1)); }; sc.append(b); }
+  const sy = $("#p-sym");
+  for (const s of SYMPTOMS){ const b=el("button",{type:"button",class:"chip","aria-pressed":"false"}, s);
+    b.onclick=()=>{ painSyms.has(s)?painSyms.delete(s):painSyms.add(s); b.setAttribute("aria-pressed", painSyms.has(s)); }; sy.append(b); }
+  $("#pain-toggle").onclick = () => { $("#f-pain").hidden=false; $("#pain-toggle").hidden=true; $("#p-time").value = curDate===today()? nowHM() : "16:00"; };
+  $("#pain-cancel").onclick = () => { $("#f-pain").hidden=true; $("#pain-toggle").hidden=false; };
+  $("#f-pain").onsubmit = async ev => {
+    ev.preventDefault();
+    const urgent = painSyms.has("gorączka") || painSyms.has("wymioty") || painInt>=5;
+    const ok = await put({id:uid(), type:"pain", date:curDate, ts:new Date(curDate+"T"+$("#p-time").value).toISOString(), intensity:painInt,
+      duration:Number($("#p-dur").value), location:$("#p-loc").value, symptoms:[...painSyms], note:$("#p-note").value.trim(), createdAt:new Date().toISOString()});
+    if (!ok) return;
+    painSyms.clear(); document.querySelectorAll("#p-sym .chip").forEach(c=>c.setAttribute("aria-pressed","false"));
+    $("#p-note").value=""; $("#f-pain").hidden=true; $("#pain-toggle").hidden=false;
+    toast(urgent ? "Zapisano. Przy silnym bólu, gorączce lub wymiotach skontaktuj się z lekarzem." : "Ból zapisany");
+  };
+}
+
+// ================= Ocena odżywcza =================
+function dayNutrition(list, date){
+  const meals = list.filter(e=>e.type==="meal" && e.date===date);
+  const supps = (list.find(e=>e.type==="supp" && e.date===date)?.items)||[];
+  const groups = {};
+  for (const m of meals){ const a = m.amount ?? 1; for (const d of m.dishes){ const g = dishGroups(d.name, d.allergens||[]); for (const k in g) groups[k]=(groups[k]||0)+g[k]*a; } }
+  const res = {};
+  for (const n of NUTRIENTS){
+    let v=0; for (const k in n.from) v += (groups[k]||0)*n.from[k];
+    let fromSupp = false;
+    for (const s of supps) if (n.supp?.[s]) { v += n.supp[s]; fromSupp = true; }
+    res[n.k] = {v, cov: Math.min(1, v/n.target), fromSupp};
+  }
+  let sugar=0; for (const k in SUGAR.from) sugar += (groups[k]||0)*SUGAR.from[k];
+  return {res, sugar, slots: new Set(meals.map(m=>m.slot)), meals: meals.length, supps};
+}
+function meterRow(name, frac, right, cls){
+  const bar = el("i",{class:cls}); bar.style.width = Math.max(4, Math.min(1,frac)*100)+"%";
+  return el("div",{class:"meter"}, el("div",{class:"top"}, el("span",{},name), el("span",{class:"muted"}, right)), el("div",{class:"bar"}, bar));
+}
+const covCls = c => c>=.8 ? "" : c>=.45 ? "w" : "p";
+const covWord = c => c>=.8 ? "dobrze" : c>=.45 ? "średnio" : "mało";
+function renderDayNutri(){
+  const box = $("#day-nutri"); box.replaceChildren();
+  const r = dayNutrition(entries, curDate);
+  if (!r.meals){ box.append(el("p",{class:"empty"},"Dodaj posiłki, a zobaczysz, czego w tym dniu mogło być za mało.")); return; }
+  for (const n of NUTRIENTS){ const x=r.res[n.k]; box.append(meterRow(n.name + (x.fromSupp?" (z suplementem)":""), x.cov, covWord(x.cov), covCls(x.cov))); }
+  const sOver = r.sugar > SUGAR.limit;
+  box.append(meterRow(SUGAR.name, Math.min(1, r.sugar/2), r.sugar<0.5?"prawie brak": sOver?"za dużo":"w normie", sOver?"p": r.sugar>0.5?"w":""));
+  const missing = NUTRIENTS.filter(n=>!n.weekly && r.res[n.k].cov<0.6);
+  const notes = [];
+  const lacking = SLOTS.filter(([s])=>!r.slots.has(s)).map(s=>s[1].toLowerCase());
+  if (lacking.length) notes.push(el("li",{}, "Brak wpisu: " + lacking.join(", ") + ". Ocena jest niepełna."));
+  for (const n of missing) notes.push(el("li",{}, el("b",{}, n.name+": "), "może brakować. Pomysł: "+n.tip+"."));
+  if (sOver) notes.push(el("li",{}, el("b",{},"Słodkie: "), "więcej niż jedna słodka rzecz. Spróbuj zamienić sok na wodę, a deser na owoc."));
+  if (notes.length) box.append(el("ul",{class:"gaps"}, notes));
+  box.append(el("small",{class:"muted"},"Szacunek z rodzaju dań, bez gramatur. Pokazuje kierunek, a nie dokładne wartości."));
+}
+
+// ================= Import PDF =================
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=()=>rej(new Error("load")); document.head.append(s); }); }
+async function ensurePdfjs(){
+  if (window.pdfjsLib) return window.pdfjsLib;
+  await loadScript(PDFJS+"pdf.min.js");
+  await loadScript(PDFJS+"pdf.worker.min.js"); // tryb bez osobnego wątku (działa też w zamkniętej ramce)
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS+"pdf.worker.min.js";
+  return window.pdfjsLib;
+}
+// Odczyt tabeli: dni w pierwszej kolumnie, kolejne kolumny = posiłki
+function parseMenuItems(items){
+  const DAYS=[["PONIEDZIA",0],["WTOREK",1],["ŚRODA",2],["SRODA",2],["CZWARTEK",3],["PIĄTEK",4],["PIATEK",4],["SOBOTA",5],["NIEDZIELA",6]];
+  items=items.filter(i=>i.s.trim()).map(i=>({...i}));
+  const all=items.map(i=>i.s).join(" ");
+  let start=null;
+  const m=all.match(/(\d{1,2})\.(\d{1,2})\s*[-–]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if(m) start=`${m[5]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  items.sort((a,b)=>b.y-a.y||a.x-b.x);
+  const lines=[];
+  for(const it of items){ let L=lines.find(l=>Math.abs(l.y-it.y)<3); if(!L){L={y:it.y,items:[]};lines.push(L);} L.items.push(it); }
+  const segs=[];
+  for(const L of lines){ L.items.sort((a,b)=>a.x-b.x); let cur=null;
+    for(const it of L.items){
+      if(cur && it.x-cur.end<12){ cur.s+=(it.x-cur.end>1.2?" ":"")+it.s; cur.end=it.x+it.w; }
+      else { cur={x:it.x,y:L.y,s:it.s,end:it.x+it.w}; segs.push(cur); }
+    }}
+  const dayLabels=[];
+  for(const s of segs){ const u=s.s.trim().toUpperCase(); const d=DAYS.find(([k])=>u.startsWith(k)); if(d && u.length<16) dayLabels.push({y:s.y,x:s.x,day:d[1],seg:s}); }
+  if(!dayLabels.length) return {start,days:[]};
+  dayLabels.sort((a,b)=>b.y-a.y);
+  const dayX=Math.max(...dayLabels.map(d=>d.x));
+  const freq={}; for(const s of segs){ if(s.x<=dayX+20||dayLabels.some(d=>d.seg===s)) continue; const k=Math.round(s.x/6)*6; freq[k]=(freq[k]||0)+1; }
+  const minCount=Math.max(3,Math.floor(dayLabels.length*0.6));
+  let cols=Object.entries(freq).filter(([,n])=>n>=minCount).map(([k])=>+k).sort((a,b)=>a-b);
+  cols=cols.filter((c,i)=>i===0||c-cols[i-1]>30);
+  const dayLines=new Set(dayLabels.map(d=>d.seg.y));
+  const skipY=new Set(lines.filter(L=>!dayLines.has(L.y) && L.items[0].x < dayX-1).map(L=>L.y));
+  const half=i=>{ const a=dayLabels[i], b=dayLabels[i+1]||dayLabels[i-1]; return b?Math.abs(a.y-b.y)/2:60; };
+  const n=dayLabels.length;
+  const bounds=dayLabels.map((d,i)=>({day:d.day, hi: i===0? d.y+half(0)*1.4 : (dayLabels[i-1].y+d.y)/2, lo: i===n-1? -Infinity : (d.y+dayLabels[i+1].y)/2}));
+  const colOf=x=>{ let ci=-1; for(let c=0;c<cols.length;c++) if(x>=cols[c]-8) ci=c; return ci; };
+  const days=bounds.map(b=>({day:b.day, cells:cols.map(()=>[])}));
+  for(const L of lines){ if(skipY.has(L.y)) continue;
+    const bi=bounds.findIndex(b=>L.y<=b.hi&&L.y>b.lo); if(bi<0) continue;
+    const parts={};
+    for(const it of L.items){ if(it.x<=dayX+20) continue; const ci=colOf(it.x); if(ci<0) continue;
+      const p=parts[ci]; if(p){ p.s+=(it.x-p.end>1.2?" ":"")+it.s; p.end=it.x+it.w; } else parts[ci]={s:it.s,end:it.x+it.w}; }
+    for(const ci in parts) days[bi].cells[ci].push(parts[ci]); }
+  for(const d of days) d.cells=d.cells.map(c=>c.map(s=>s.s.trim()).join(" ").replace(/\s+/g," ").replace(/\s+([,)])/g,"$1").replace(/\(\s+/g,"(").replace(/(\p{L})- (\p{L})/gu,"$1-$2").trim());
+  return {start, days};
+}
+function splitDishes(text){
+  const out=[]; const re=/(.+?)\s*A\s*\(([\d,\s]+)\)\s*/g; let m, last=0;
+  while((m=re.exec(text))){ out.push({name:m[1].replace(/^[\s,+]+|[\s,]+$/g,""), allergens:m[2].split(/[,\s]+/).filter(Boolean).map(Number)}); last=re.lastIndex; }
+  const rest=text.slice(last).replace(/^[\s,]+|[\s,]+$/g,""); if(rest) out.push({name:rest,allergens:[]});
+  return out.filter(d=>d.name);
+}
+
+let importData = null; // {days:[{day, off:bool, rows:[{slot, name, allergens, on}]}]}
+const DAY_NAMES = ["Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"];
+async function handlePdf(file){
+  const st = $("#imp-status"); st.textContent = "Czytam plik…"; $("#imp-preview").hidden = true;
+  try {
+    const pdfjs = await ensurePdfjs();
+    const doc = await pdfjs.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
+    let best = {start:null, days:[]};
+    for (let p=1; p<=Math.min(doc.numPages,3); p++){
+      const tc = await (await doc.getPage(p)).getTextContent();
+      const r = parseMenuItems(tc.items.map(i=>({x:i.transform[4], y:i.transform[5], w:i.width, s:i.str})));
+      if (r.days.length > best.days.length) best = r;
+    }
+    if (!best.days.length){ st.textContent = "Nie znalazłem tabeli z dniami tygodnia w tym pliku. Posiłki możesz dodać ręcznie w widoku Dzień."; return; }
+    const slotOrder = ["sniadanie","drugie","obiad","przekaska","kolacja"];
+    importData = {days: best.days.map(d => ({day:d.day, off:false, rows: d.cells.flatMap((c,ci)=> splitDishes(c).map(x=>({slot:slotOrder[ci]||"przekaska", name:x.name, allergens:x.allergens, on:true})))}))};
+    let start = best.start;
+    if (!start){ const t=new Date(); const dow=(t.getDay()+6)%7; t.setDate(t.getDate()-dow); start=ymd(t); }
+    $("#imp-start").value = start;
+    st.textContent = `Odczytano ${importData.days.length} dni, ${importData.days.reduce((a,d)=>a+d.rows.length,0)} dań. Sprawdź i zapisz.`;
+    renderImport();
+  } catch(err){
+    st.textContent = "Nie udało się odczytać PDF. Sprawdź połączenie z internetem i spróbuj ponownie albo dodaj posiłki ręcznie.";
+  }
+}
+function renderImport(){
+  const box = $("#imp-days"); box.replaceChildren();
+  const start = $("#imp-start").value;
+  for (const d of importData.days){
+    const date = start ? addDays(start, d.day) : "";
+    const dayBox = el("div",{class:"imp-day"});
+    const offB = el("label",{style:"flex-direction:row;align-items:center;gap:8px;color:var(--fg)"}, el("input",{type:"checkbox"}), "Nie był w przedszkolu");
+    offB.querySelector("input").checked = d.off;
+    offB.querySelector("input").onchange = e => { d.off = e.target.checked; d.rows.forEach(r=>r.on=!d.off); renderImport(); };
+    dayBox.append(el("div",{class:"card-h"}, el("h3",{}, DAY_NAMES[d.day] + (date? " · "+new Date(date+"T12:00").toLocaleDateString("pl-PL",{day:"numeric",month:"long"}) : "")), offB));
+    d.rows.forEach(r => {
+      const cb = el("input",{type:"checkbox","aria-label":"Zjadł: "+r.name}); cb.checked = r.on;
+      const tx = el("input",{type:"text",value:r.name,"aria-label":"Nazwa dania"});
+      const row = el("div",{class:"imp-row"+(r.on?"":" off")}, cb, el("span",{class:"slotname"}, SLOT_LABEL[r.slot]), tx);
+      cb.onchange = () => { r.on = cb.checked; row.classList.toggle("off", !r.on); };
+      tx.oninput = () => r.name = tx.value;
+      dayBox.append(row);
+    });
+    box.append(dayBox);
+  }
+  $("#imp-preview").hidden = false;
+}
+async function saveImport(){
+  const start = $("#imp-start").value;
+  if (!start){ toast("Ustaw datę poniedziałku tego tygodnia"); return; }
+  let count = 0;
+  const dates = importData.days.map(d=>addDays(start,d.day));
+  // ponowny import tego samego tygodnia zastępuje wcześniejsze wpisy z przedszkola
+  for (const e of entries.filter(e=>e.type==="meal" && e.source==="przedszkole" && dates.includes(e.date))) await del(e.id);
+  for (const d of importData.days){
+    if (d.off) continue;
+    const date = addDays(start, d.day);
+    const bySlot = {};
+    for (const r of d.rows) if (r.on && r.name.trim()) (bySlot[r.slot] ||= []).push({name:r.name.trim(), allergens:r.allergens});
+    for (const slot in bySlot){
+      const t = SLOT_TIME[slot];
+      await put({id:uid(), type:"meal", date, slot, time:t, ts:new Date(date+"T"+t).toISOString(), dishes:bySlot[slot], amount:1, source:"przedszkole", importWeek:start, createdAt:new Date().toISOString()});
+      count++;
+    }
+  }
+  toast(`Zapisano ${count} posiłków z przedszkola`);
+  curDate = dates.find(x=>x<=today() && x>=addDays(today(),-6)) || dates[0];
+  $("#imp-preview").hidden = true; $("#imp-status").textContent = ""; $("#imp-file").value = "";
+  show("day");
+}
+
+// ================= Analizy =================
+function dietPeriod(list, days){
+  const from = addDays(today(), -(days-1));
+  const dates = [...new Set(list.filter(e=>e.type==="meal" && e.date>=from && e.date<=today()).map(e=>e.date))].sort();
+  const per = dates.map(d=>dayNutrition(list, d)).filter(r=>r.slots.size>=2);
+  if (!per.length) return null;
+  const avg = {}; for (const n of NUTRIENTS){ avg[n.k] = per.reduce((a,r)=>a+r.res[n.k].v,0)/per.length; }
+  // omega-3: liczone tygodniowo (ryba 1–2× w tygodniu wystarcza)
+  const omegaCov = Math.min(1, avg.omega*7/1.5);
+  const sugar = per.reduce((a,r)=>a+r.sugar,0)/per.length;
+  const W = {vegfruit:25,protein:10,calcium:15,iron:10,fiber:15,vitc:10,vitd:10,omega:5};
+  let sc=0, sw=0;
+  for (const n of NUTRIENTS){ const cov = n.k==="omega"? omegaCov : Math.min(1, avg[n.k]/n.target); sc+=cov*W[n.k]; sw+=W[n.k]; }
+  const score = Math.max(0, Math.round(100*sc/sw - Math.min(15, Math.max(0,sugar-1)*10)));
+  return {days: per.length, avg, omegaCov, sugar, score};
+}
+function renderDiet(list){
+  const box=$("#diet"); box.replaceChildren();
+  const r = dietPeriod(list, Number($("#i-range").value));
+  if (!r){ box.append(el("p",{class:"empty"},"Za mało danych w tym okresie. Liczą się dni z co najmniej dwoma wpisanymi posiłkami.")); return; }
+  const v = r.score>=75?["ok","Dobrze zbilansowana"]: r.score>=55?["w","Do poprawy"]:["p","Wymaga uwagi"];
+  box.append(el("div",{class:"score"}, el("span",{class:"num"}, String(r.score)),
+    el("div",{}, el("span",{class:"pill "+v[0]}, v[1]), el("div",{class:"muted"}, `na 100 pkt · średnia z ${r.days} dni`))));
+  const gaps = [];
+  for (const n of NUTRIENTS){
+    const cov = n.k==="omega" ? r.omegaCov : Math.min(1, r.avg[n.k]/n.target);
+    box.append(meterRow(n.name, cov, n.k==="vegfruit" ? fmt1(r.avg.vegfruit)+" porcji / dzień" : covWord(cov), covCls(cov)));
+    if (cov<0.6) gaps.push(el("li",{}, el("b",{},n.name+": "), n.tip+"."));
+  }
+  const sOver = r.sugar>1;
+  box.append(meterRow(SUGAR.name, Math.min(1, r.sugar/2), fmt1(r.sugar)+" / dzień", sOver?"p": r.sugar>0.5?"w":""));
+  if (sOver) gaps.push(el("li",{}, el("b",{},"Słodkie: "), "średnio więcej niż jedna słodka rzecz dziennie."));
+  if (gaps.length) box.append(el("h3",{},"Najczęściej może brakować"), el("ul",{class:"gaps"}, gaps));
+  box.append(el("small",{class:"muted"},"Szacunek z rodzaju dań i podanych suplementów, bez gramatur, według ogólnych zaleceń dla dzieci. Nie uwzględnia wieku ani wielkości porcji."));
+}
+
+function mealKeys(m){
+  const ks = new Set();
+  for (const d of m.dishes){
+    if (m.source!=="przedszkole") ks.add("p:"+d.name.toLowerCase());
+    for (const g in dishGroups(d.name, d.allergens||[])) if (g!=="witc") ks.add("g:"+g);
+    for (const a of d.allergens||[]) ks.add("a:"+a);
+  }
+  return ks;
+}
+function keyLabel(k){ const [t,v]=[k.slice(0,1), k.slice(2)]; return t==="g" ? GROUP_LABEL[v]||v : t==="a" ? "Alergen: "+(ALLERGENS[v]||v) : v; }
+function correlate(list, hours){
+  const W = hours*3600e3;
+  const meals = list.filter(e=>e.type==="meal").map(m=>({...m,t:Date.parse(m.ts)}));
+  const pains = list.filter(e=>e.type==="pain").map(p=>({...p,t:Date.parse(p.ts)}));
+  if (!meals.length) return {pains:pains.length, rows:[]};
+  const lastT = Math.max(...meals.map(m=>m.t), ...pains.map(p=>p.t));
+  const followed = m => pains.some(p=>p.t>=m.t && p.t<=m.t+W);
+  const eligible = meals.filter(m => m.t+W <= lastT || followed(m));
+  const fc = eligible.filter(followed).length;
+  const base = eligible.length ? fc/eligible.length : 0;
+  const keys = {};
+  for (const m of eligible){ const f=followed(m); for (const k of mealKeys(m)){ keys[k] ??= {n:0,f:0}; keys[k].n++; if(f) keys[k].f++; } }
+  const rows = Object.entries(keys).filter(([,v])=>v.n>=3).map(([k,v])=>({k, name:keyLabel(k), bold:!k.startsWith("p:"), n:v.n, f:v.f, rate:v.f/v.n, lift: base>0 ? (v.f/v.n)/base : 0}))
+    .sort((a,b)=>b.lift-a.lift || b.f-a.f);
+  return {pains:pains.length, rows, base, followed:fc, eligible:eligible.length};
+}
+function liftTag(lift, f){ return lift>=2 && f>=3 ? el("span",{class:"pill p"},"silny wzór") : lift>=1.5 && f>=2 ? el("span",{class:"pill w"},"możliwy") : el("span",{class:"pill ok"},"brak"); }
+function table(headers, rows){
+  return el("div",{class:"tablewrap"}, el("table",{}, el("thead",{}, el("tr",{}, headers.map(h=>el("th",{class:h.n?"n":null}, h.t)))), el("tbody",{}, rows)));
+}
+function renderCorr(list){
+  const hours = Number($("#i-win").value);
+  const box=$("#corr"); box.replaceChildren();
+  const r=correlate(list, hours);
+  if (r.pains<2){ box.append(el("p",{class:"empty"}, `Potrzebne są co najmniej 2 zapisane bóle brzucha i kilka dni posiłków (teraz bólów: ${r.pains}). Zapisuj każdy epizod, nawet lekki.`)); return; }
+  box.append(el("p",{style:"margin:0"}, `Ból pojawił się w ciągu ${hours} h po ${r.followed} z ${r.eligible} posiłków (${Math.round(r.base*100)}%). Wyżej w tabeli są produkty i grupy, po których zdarzało się to częściej niż zwykle.`));
+  box.append(table([{t:"Produkt / grupa"},{t:"Ból po",n:1},{t:"Odsetek",n:1},{t:"Ryzyko",n:1},{t:""}],
+    r.rows.slice(0,14).map(x=>el("tr",{}, el("td",{class:"name"}, x.bold?el("b",{},x.name):x.name), el("td",{class:"n"},`${x.f}/${x.n}`), el("td",{class:"n"},Math.round(x.rate*100)+"%"), el("td",{class:"n"},"×"+fmt1(x.lift)), el("td",{},liftTag(x.lift,x.f))))));
+  box.append(el("small",{class:"muted"},"„Ból po” = ile razy po zjedzeniu był ból / ile razy zjedzone. „Ryzyko” = ile razy częściej niż po przeciętnym posiłku. Grupy i alergeny są pogrubione. Liczone dla rzeczy zjedzonych co najmniej 3 razy."));
+}
+function correlateMood(list){
+  const dates = [...new Set(list.filter(e=>["meal","mood","pain"].includes(e.type)).map(e=>e.date))];
+  const painDays = new Set(list.filter(e=>e.type==="pain").map(e=>e.date));
+  const moods = Object.fromEntries(list.filter(e=>e.type==="mood").map(m=>[m.date,m]));
+  const keys = {};
+  const mark = (k, d) => { (keys[k] ||= new Set()).add(d); };
+  for (const d of dates){ const m=moods[d]; if (!m) continue;
+    if (m.level && m.level<=2) mark("Gorsze samopoczucie (1–2)", d);
+    for (const ev of m.events||[]) mark(ev, d);
+    // wydarzenie z poprzedniego dnia też może wpływać
+    for (const ev of m.events||[]) { const nd=addDays(d,1); if (dates.includes(nd)) mark("Dzień po: "+ev.toLowerCase(), nd); }
+  }
+  const rows = Object.entries(keys).map(([k,set])=>{
+    const n=set.size, f=[...set].filter(d=>painDays.has(d)).length;
+    const outside = dates.filter(d=>!set.has(d)); const fo = outside.filter(d=>painDays.has(d)).length;
+    const rOut = outside.length ? fo/outside.length : 0, rate = f/n;
+    return {name:k, n, f, rate, rOut, lift: rOut>0 ? rate/rOut : (rate>0 ? 9.9 : 0)};
+  }).filter(x=>x.n>=2).sort((a,b)=>b.lift-a.lift || b.f-a.f);
+  return {rows, days:dates.length, painDays:painDays.size, moodDays:Object.keys(moods).length};
+}
+function renderCorrMood(list){
+  const box=$("#corr-mood"); box.replaceChildren();
+  const r = correlateMood(list);
+  if (r.painDays<2 || r.moodDays<3){ box.append(el("p",{class:"empty"},`Zaznaczaj samopoczucie i zdarzenia w widoku Dzień, także w dni bez bólu. Porównanie pojawi się po kilku takich dniach (teraz: ${r.moodDays} dni z samopoczuciem, ${r.painDays} z bólem).`)); return; }
+  box.append(el("p",{style:"margin:0"}, `Ból był w ${r.painDays} z ${r.days} dni z wpisami. Tabela porównuje dni ze zdarzeniem z pozostałymi.`));
+  if (!r.rows.length){ box.append(el("p",{class:"empty"},"Żadne zdarzenie nie wystąpiło jeszcze co najmniej 2 razy.")); return; }
+  box.append(table([{t:"Zdarzenie"},{t:"Dni z bólem",n:1},{t:"Gdy było",n:1},{t:"Gdy nie było",n:1},{t:""}],
+    r.rows.slice(0,12).map(x=>el("tr",{}, el("td",{class:"name"}, x.name), el("td",{class:"n"},`${x.f}/${x.n}`), el("td",{class:"n"},Math.round(x.rate*100)+"%"), el("td",{class:"n"},Math.round(x.rOut*100)+"%"), el("td",{},liftTag(x.lift,x.f))))));
+  box.append(el("small",{class:"muted"},"Stres i emocje u dzieci często dają ból brzucha (zwykle wokół pępka). Jeśli wzór się powtarza, warto o tym powiedzieć pediatrze."));
+}
+
+// Przykładowe dane tylko w pamięci (gdy dziennik jest pusty)
+function demoData(){
+  const out=[]; let id=0, seed=11; const rnd=()=> (seed=(seed*9301+49297)%233280)/233280;
+  const menu = {
+    sniadanie:[["Kasza manna z brzoskwiniami",[1,7]],["Płatki owsiane z daktylami",[1,7]],["Pieczywo z pastą z twarogu",[1,7]],["Bułki z pasztetem i pomidorkami",[1,3]],["Zupa mleczna z makaronem",[1,7]]],
+    drugie:[["Mix owoców: jabłko, banan, gruszka",[]]],
+    obiad:[["Zupa pomidorowa z ryżem",[7,9]],["Krupnik z kaszą jęczmienną",[1,9]],["Panierowany filet z kurczaka, ziemniaki, buraczki",[1,3,7]],["Spaghetti bolognese z warzywami",[1]],["Ryba pieczona, ryż, marchewka",[4]]],
+    przekaska:[["Kisiel z owoców leśnych",[1]],["Ciasto jogurtowe z jabłkami",[1,3,7]],["Słupki warzyw z dipem jogurtowym",[7]],["Gofry z cukinii",[1,3]]],
+    kolacja:[["Kanapka z serem i ogórkiem",[1,7]],["Jajecznica, chleb razowy",[1,3]],["Naleśniki z twarogiem",[1,3,7]],["Parówki, bułka",[1]]]
+  };
+  for (let d=13; d>=0; d--){
+    const date = addDays(today(), -d);
+    let dairy=0;
+    for (const [slot] of SLOTS){ const opts=menu[slot]; const [name,al]=opts[Math.floor(rnd()*opts.length)]; if (al.includes(7)) dairy++;
+      const t=SLOT_TIME[slot]; out.push({id:"d"+(id++), type:"meal", date, slot, ts:new Date(date+"T"+t).toISOString(), dishes:[{name,allergens:al}], amount:1, source: slot==="kolacja"?"manual":"przedszkole"}); }
+    const conflict = rnd()<0.3;
+    out.push({id:"m"+d, type:"mood", date, level: conflict?2:(3+Math.floor(rnd()*2)), events: conflict?["Afera w przedszkolu"]:(rnd()<0.2?["Zmęczenie, mało snu"]:[])});
+    if ((conflict && rnd()<0.7) || (dairy>=3 && rnd()<0.5)) out.push({id:"p"+d, type:"pain", date, ts:new Date(date+"T16:30").toISOString(), intensity:3, duration:30, location:"Wokół pępka", symptoms:[]});
+    if (rnd()<0.7) out.push({id:"s"+d, type:"supp", date, items:["Witamina D"]});
+  }
+  return out;
+}
+function renderInsights(){
+  const real = entries.some(e=>e.type==="meal");
+  const data = real ? entries : demoData();
+  $("#demo-banner").hidden = real;
+  renderDiet(data); renderCorr(data); renderCorrMood(data);
+}
+$("#i-range").onchange = renderInsights; $("#i-win").onchange = renderInsights;
+
+// ================= Kopia zapasowa =================
+$("#b-export").onclick = async () => {
+  const json = JSON.stringify({app:"dziennik-brzuszka", version:2, exportedAt:new Date().toISOString(), entries}, null, 1);
+  const filename = "dziennik-brzuszka-"+today()+".json";
+  if (downloads){ try { await downloads.save({filename, data: json}); return; } catch { toast("Nie pobrano kopii"); return; } }
+  try { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([json],{type:"application/json"})); a.download=filename; document.body.append(a); a.click(); a.remove(); }
+  catch { toast("Ta przeglądarka nie pozwala pobrać pliku"); }
+};
+$("#b-import").onchange = async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); const list = Array.isArray(data) ? data : data.entries;
+    if (!Array.isArray(list)) throw 0;
+    let n=0; for (const e of list){ if (!e || !e.type) continue; await put(normalize({...e, id: e.id ? String(e.id).replace(/[^a-zA-Z0-9_.~:@+-]/g,"") : uid()})); n++; }
+    toast(`Wczytano ${n} wpisów`);
+  } catch { toast("To nie jest plik kopii Dziennika Brzuszka"); }
+  ev.target.value = "";
+};
+
+// ================= Nawigacja =================
+function show(v){
+  for (const n of ["day","import","insights"]){ $("#v-"+n).hidden = n!==v; const t=$("#t-"+n); v===n?t.setAttribute("aria-current","page"):t.removeAttribute("aria-current"); }
+  renderAll(); window.scrollTo(0,0);
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => show(b.dataset.v));
+$("#d-prev").onclick = () => { curDate = addDays(curDate,-1); editor=null; renderDay(); };
+$("#d-next").onclick = () => { curDate = addDays(curDate,1); editor=null; renderDay(); };
+$("#d-date").onchange = e => { if (e.target.value){ curDate = e.target.value; editor=null; renderDay(); } };
+$("#imp-file").onchange = e => { const f=e.target.files[0]; if (f) handlePdf(f); };
+$("#imp-start").onchange = () => importData && renderImport();
+$("#imp-save").onclick = saveImport;
+
+function renderAll(){
+  setSync();
+  if (!$("#v-day").hidden) renderDay();
+  if (!$("#v-insights").hidden) renderInsights();
+}
+setupPainForm();
+initStore();
+</script>
+
+</body>
+</html>
