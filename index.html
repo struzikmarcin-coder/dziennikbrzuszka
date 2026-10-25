@@ -14,24 +14,20 @@
 <title>Dziennik Brzuszka</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
-/* Layout: one-column phone app, sticky header, bottom tab bar; content max 680px */
+/* Layout: one-column phone app, sticky header, bottom tab bar; content max 680px.
+   Deliberately light-only: bright, airy, friendly (rounded type, pastel slots, soft shadows). */
 :root{
-  --bg:#F3F6F2; --surface:#FFFFFF; --fg:#1B2721; --muted:#5C6B63; --line:#DCE4DE;
-  --accent:#2C7A58; --accent-soft:#DDEFE5; --pain:#B8461B; --pain-soft:#F8E3D8;
-  --warn:#A86A00; --warn-soft:#F7ECD2; --mood:#5B5BB0; --mood-soft:#E5E5F6;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  --bg:#F4F9FF; --surface:#FFFFFF; --fg:#22304A; --muted:#6B7A93; --line:#E3EBF5;
+  --accent:#16A17A; --accent-soft:#DDF6EC; --pain:#E4583E; --pain-soft:#FFE7E1;
+  --warn:#C98A00; --warn-soft:#FFF4D6; --mood:#7A5CE0; --mood-soft:#EEE8FF;
+  --sky:#E6F1FF; --sun:#FFF6DC; --peach:#FFEDE3; --mint:#E3F8EF; --lilac:#F1ECFF;
+  --shadow:0 2px 10px rgba(34,48,74,.07);
+  --display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#121A16; --surface:#1A2520; --fg:#E6EEE9; --muted:#9DB0A6; --line:#2C3A33;
-  --accent:#5DC495; --accent-soft:#1F3A2D; --pain:#F08A5D; --pain-soft:#3D2419;
-  --warn:#E5B24F; --warn-soft:#3A2F17; --mood:#A3A3F0; --mood-soft:#26264A; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#121A16; --surface:#1A2520; --fg:#E6EEE9; --muted:#9DB0A6; --line:#2C3A33;
-  --accent:#5DC495; --accent-soft:#1F3A2D; --pain:#F08A5D; --pain-soft:#3D2419;
-  --warn:#E5B24F; --warn-soft:#3A2F17; --mood:#A3A3F0; --mood-soft:#26264A; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);
@@ -41,53 +37,58 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .wrap{max-width:680px;margin:0 auto}
 header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-block:12px 8px;
   display:flex;align-items:baseline;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
-h1{font:800 1.5rem/1.1 var(--display);margin:0;letter-spacing:-.01em}
-h2{font:700 1.15rem/1.2 var(--display);margin:0;text-wrap:balance}
+h1{font:800 1.7rem/1.1 var(--display);margin:0;color:var(--accent)}
+h2{font:700 1.25rem/1.2 var(--display);margin:0;text-wrap:balance}
 h3{font:700 1rem/1.2 var(--display);margin:0}
 .sync,.muted{font-size:.8rem;color:var(--muted)}
 section.view{display:flex;flex-direction:column;gap:14px;padding-block:6px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card{background:var(--surface);border:0;box-shadow:var(--shadow);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
 .label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
-input,select,textarea{font:16px var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+input,select,textarea{font:16px var(--body);color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;width:100%;min-width:0}
 input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 130px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:6px 12px;font:15px var(--body);cursor:pointer}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 14px;font:600 15px var(--body);cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .chip.mood[aria-pressed="true"]{background:var(--mood);border-color:var(--mood)}
 .chip.add{border-style:dashed;color:var(--muted)}
 .chipgroup{display:flex;flex-direction:column;gap:4px}
 .chipgroup>span{font-size:.8rem;color:var(--muted)}
 .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.scale button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 0;font:700 1.05rem var(--display);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0}
+.scale button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:16px;padding:8px 0;font:700 1.15rem var(--display);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0}
 .scale button small{font:400 .68rem var(--body);color:var(--muted)}
 .scale.pain button[aria-pressed="true"]{background:var(--pain);border-color:var(--pain);color:var(--surface)}
 .scale.mood button[aria-pressed="true"]{background:var(--mood);border-color:var(--mood);color:var(--surface)}
 .scale button[aria-pressed="true"] small{color:inherit}
-.btn{border:0;border-radius:12px;padding:12px 14px;font:700 1rem var(--body);background:var(--accent);color:var(--surface);cursor:pointer}
-.btn.pain{background:var(--pain)}
-.ghost{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:10px;padding:7px 12px;font:15px var(--body);cursor:pointer}
+.btn{border:0;border-radius:999px;padding:13px 18px;font:800 1rem var(--body);box-shadow:0 3px 10px rgba(22,161,122,.25);background:var(--accent);color:var(--surface);cursor:pointer}
+.btn.pain{background:var(--pain);box-shadow:0 3px 10px rgba(228,88,62,.25)}
+.ghost{border:1.5px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 14px;font:700 15px var(--body);cursor:pointer}
 .ghost.small{padding:4px 10px;font-size:.85rem}
 .ghost.danger{color:var(--pain);border-color:var(--pain-soft)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:20;max-width:calc(100% - 32px)}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:0;box-shadow:0 -4px 16px rgba(34,48,74,.08);
   display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
   padding:6px max(16px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px))}
-nav.tabs button{border:0;background:transparent;color:var(--muted);font:700 .95rem var(--body);padding:10px 4px;border-radius:10px;cursor:pointer}
+nav.tabs button{border:0;background:transparent;color:var(--muted);font:800 1rem var(--body);padding:10px 4px;border-radius:999px;cursor:pointer}
 nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
 .daynav{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center}
-.daynav button{height:44px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;font:700 1.2rem var(--display);cursor:pointer}
+.daynav button{height:44px;border:0;box-shadow:var(--shadow);background:var(--surface);color:var(--accent);border-radius:999px;font:700 1.2rem var(--display);cursor:pointer}
 .daynav .mid{display:flex;flex-direction:column;align-items:center;gap:2px}
 .daynav .mid b{font:700 1.05rem var(--display);text-align:center}
 .daynav input{max-width:180px;padding:4px 8px;font-size:.9rem;text-align:center}
-.slot{display:flex;flex-direction:column;gap:6px;padding-block:8px;border-top:1px solid var(--line)}
+.slot{display:flex;flex-direction:column;gap:6px;padding-block:10px;border-top:1.5px dashed var(--line)}
 .slot:first-of-type{border-top:0;padding-top:0}
+.slot[data-slot="sniadanie"]{--slot-bg:var(--sun)}.slot[data-slot="drugie"]{--slot-bg:var(--mint)}.slot[data-slot="obiad"]{--slot-bg:var(--peach)}.slot[data-slot="przekaska"]{--slot-bg:var(--lilac)}.slot[data-slot="kolacja"]{--slot-bg:var(--sky)}
+.slot-h h3::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--slot-dot,var(--accent));margin-right:8px;vertical-align:1px}
+.slot[data-slot="sniadanie"]{--slot-dot:#F2B705}.slot[data-slot="drugie"]{--slot-dot:#16A17A}.slot[data-slot="obiad"]{--slot-dot:#F07A45}.slot[data-slot="przekaska"]{--slot-dot:#8B6CF0}.slot[data-slot="kolacja"]{--slot-dot:#3D8BFD}
+.card.c-supp{background:linear-gradient(180deg,var(--mint),var(--surface) 70%)}.card.c-mood{background:linear-gradient(180deg,var(--lilac),var(--surface) 70%)}.card.c-pain{background:linear-gradient(180deg,var(--peach),var(--surface) 70%)}
+.acts{display:flex;gap:4px;flex:none;align-items:center}
 .slot-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .slot-h h3 span{font:400 .8rem var(--body);color:var(--muted);margin-left:6px}
-.dish{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:6px 10px;background:var(--bg);border-radius:10px}
+.dish{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:8px 12px;background:var(--slot-bg,var(--bg));border-radius:14px}
 .dish .what{min-width:0;overflow-wrap:anywhere}
 .dish small{display:block;color:var(--muted);font-size:.78rem}
 .x{border:0;background:transparent;color:var(--muted);font-size:.95rem;cursor:pointer;padding:4px 8px;border-radius:8px;white-space:nowrap}
@@ -97,7 +98,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent
 .pill.ok{background:var(--accent-soft);color:var(--accent)}
 .pill.w{background:var(--warn-soft);color:var(--warn)}
 .pill.m{background:var(--mood-soft);color:var(--mood)}
-.editor{display:flex;flex-direction:column;gap:10px;border:1px dashed var(--accent);border-radius:12px;padding:10px}
+.editor{display:flex;flex-direction:column;gap:10px;border:2px dashed var(--accent);background:var(--mint);border-radius:18px;padding:12px}
 .empty{color:var(--muted);margin:0}
 .note{font-size:.85rem;color:var(--muted);background:var(--warn-soft);border-radius:10px;padding:10px 12px;margin:0}
 .banner{font-size:.85rem;background:var(--accent-soft);color:var(--fg);border-radius:10px;padding:10px 12px}
@@ -105,7 +106,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent
 .score .num{font:800 3rem/1 var(--display);font-variant-numeric:tabular-nums}
 .meter{display:flex;flex-direction:column;gap:3px}
 .meter .top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
-.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
 .bar>i{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .bar>i.w{background:var(--warn)}.bar>i.p{background:var(--pain)}
 .gaps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
@@ -121,7 +122,7 @@ th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mu
 .imp-row .slotname{font-size:.8rem;color:var(--muted)}
 .imp-row input[type=text]{padding:6px 8px;font-size:.92rem}
 .imp-row.off input[type=text]{opacity:.45;text-decoration:line-through}
-.painrow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 10px;border-radius:10px;background:var(--pain-soft)}
+.painrow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border-radius:14px;background:var(--pain-soft)}
 details summary{cursor:pointer;color:var(--accent);font-weight:700}
 @media (max-width:420px){.imp-row{grid-template-columns:24px 1fr}.imp-row .slotname{grid-column:2}.imp-row input[type=text]{grid-column:1 / -1}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
@@ -147,12 +148,12 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
       <div id="slots"></div>
     </div>
 
-    <div class="card">
+    <div class="card c-supp">
       <div class="card-h"><h2>Suplementy</h2><span class="muted">stuknij, co dziś podałeś</span></div>
       <div class="chips" id="supps"></div>
     </div>
 
-    <div class="card">
+    <div class="card c-mood">
       <div class="card-h"><h2>Samopoczucie i zdarzenia</h2></div>
       <div class="scale mood" id="mood-scale"></div>
       <span class="label">Co się działo?</span>
@@ -160,7 +161,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
       <label>Notatka<input id="mood-note" placeholder="np. pokłócił się z kolegą przy obiedzie"></label>
     </div>
 
-    <div class="card">
+    <div class="card c-pain">
       <div class="card-h"><h2>Ból brzucha</h2><button class="ghost small" id="pain-toggle">+ Dodaj ból</button></div>
       <div id="pains"></div>
       <form id="f-pain" class="editor" hidden>
@@ -211,14 +212,31 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
       <div id="corr"></div>
     </div>
     <div class="card">
-      <h2>Co poprzedza ból brzucha: emocje i zdarzenia</h2>
+      <h2>Co poprzedza ból brzucha: emocje, zdarzenia, suplementy</h2>
       <div id="corr-mood"></div>
     </div>
     <p class="note">To wskazówki do rozmowy z pediatrą, a nie diagnoza. Wzór oznacza tylko, że coś często pojawiało się przed bólem. Silny ból, gorączka, wymioty, krew w stolcu albo spadek wagi to powód, by od razu skontaktować się z lekarzem.</p>
+    <div class="card" id="c-sync">
+      <h2>Synchronizacja między telefonami</h2>
+      <p class="empty">Wpisy zapisują się w pliku w Twoim prywatnym repo na GitHubie, więc widać je na każdym połączonym urządzeniu.</p>
+      <label>Repozytorium danych (prywatne)<input id="gh-repo" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      <label>Token GitHub<input id="gh-token" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+      <div class="row"><button class="btn" id="gh-connect">Połącz</button><button class="ghost" id="gh-sync" hidden>Synchronizuj teraz</button><button class="ghost danger" id="gh-off" hidden>Odłącz</button></div>
+      <p class="muted" id="gh-status" style="margin:0"></p>
+      <details><summary>Jak zdobyć token</summary>
+        <ol class="gaps" style="margin-top:8px">
+          <li>Załóż na GitHubie <b>prywatne</b> repo na dane, np. <code>dziennikbrzuszka-dane</code>.</li>
+          <li>Wejdź w GitHub → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token.</li>
+          <li>Repository access: <b>Only select repositories</b> i wybierz repo z danymi.</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Nic więcej.</li>
+          <li>Skopiuj token i wklej go tutaj na każdym telefonie.</li>
+        </ol>
+      </details>
+    </div>
     <div class="card">
       <h2>Kopia zapasowa</h2>
       <p class="empty" id="backup-info"></p>
-      <div class="row"><button class="ghost" id="b-export">Pobierz kopię (JSON)</button><label class="ghost" style="flex-direction:row;justify-content:center;cursor:pointer;color:var(--fg);font-size:15px">Wczytaj kopię<input type="file" id="b-import" accept="application/json,.json" hidden></label></div>
+      <div class="row"><button class="ghost" id="b-export">Pobierz kopię (JSON)</button><button class="ghost" id="b-csv">Pobierz tabelę (CSV)</button><label class="ghost" style="flex-direction:row;justify-content:center;cursor:pointer;color:var(--fg);font-size:15px">Wczytaj kopię<input type="file" id="b-import" accept="application/json,.json" hidden></label></div>
     </div>
   </section>
 </div>
@@ -246,7 +264,7 @@ const CATALOG = {
   "Słodkie i przekąski": ["ciastka","czekolada","cukierki / żelki","lody","drożdżówka","chrupki","chipsy","frytki","pizza"],
   "Picie": ["woda","sok","kakao","słodki napój"]
 };
-const DEFAULT_SUPPS = ["Witamina D","Omega-3 / DHA","Probiotyk","Żelazo","Multiwitamina","Wapń","Magnez"];
+const DEFAULT_SUPPS = ["Żelazo","Equazen","Hitaxa","Witamina D 1000"];
 const MOOD_LEVELS = [[1,"Bardzo źle"],[2,"Słabo"],[3,"Zwyczajnie"],[4,"Dobrze"],[5,"Świetnie"]];
 const MOOD_EVENTS = ["Afera w przedszkolu","Kłótnia z rówieśnikiem","Kłótnia w domu","Płacz przy rozstaniu","Nowa sytuacja / zmiana","Pośpiech, stres rano","Zmęczenie, mało snu","Infekcja / katar","Duże emocje / ekscytacja","Zaparcie / brak kupy"];
 const SYMPTOMS = ["wzdęcia","nudności","wymioty","biegunka","zaparcie","gorączka","płacz"];
@@ -291,12 +309,12 @@ function dishGroups(name, allergens=[]){
 const NUTRIENTS = [
   {k:"vegfruit", name:"Warzywa i owoce", unit:"porcji", target:5, from:{warzywa:1,owoce:1}, tip:"dodaj warzywo do kolacji albo owoc na przekąskę"},
   {k:"protein", name:"Białko", unit:"pkt", target:4, from:{nabial:1,mieso:1.5,drob:1.5,ryba:1.5,jaja:1,straczki:1,zboza:0.3}, tip:"jajko, twarożek, mięso albo ryba"},
-  {k:"calcium", name:"Wapń", unit:"pkt", target:3, from:{nabial:1,zielone:0.3,ryba:0.2,straczki:0.2}, tip:"jogurt, kefir, ser albo mleko (2–3 porcje nabiału dziennie)", supp:{"Wapń":3}},
-  {k:"iron", name:"Żelazo", unit:"pkt", target:2.5, from:{mieso:1,drob:0.5,ryba:0.5,jaja:0.5,straczki:1,pelne:0.5,zielone:0.5}, tip:"mięso, jajka, kasza gryczana, strączki; witamina C pomaga je wchłonąć", supp:{"Żelazo":2.5,"Multiwitamina":0.8}},
+  {k:"calcium", name:"Wapń", unit:"pkt", target:3, from:{nabial:1,zielone:0.3,ryba:0.2,straczki:0.2}, tip:"jogurt, kefir, ser albo mleko (2–3 porcje nabiału dziennie)", },
+  {k:"iron", name:"Żelazo", unit:"pkt", target:2.5, from:{mieso:1,drob:0.5,ryba:0.5,jaja:0.5,straczki:1,pelne:0.5,zielone:0.5}, tip:"mięso, jajka, kasza gryczana, strączki; witamina C pomaga je wchłonąć", supp:{"Żelazo":2.5}},
   {k:"fiber", name:"Błonnik", unit:"pkt", target:6, from:{warzywa:1,owoce:1,pelne:1.5,straczki:1.5,zboza:0.3,ziemniaki:0.3}, tip:"owsianka, pieczywo razowe, kasze, warzywa"},
-  {k:"vitc", name:"Witamina C", unit:"pkt", target:3, from:{owoce:1,warzywa:0.6,witc:1,ziemniaki:0.3}, tip:"papryka, kiwi, truskawki, kiszonki", supp:{"Multiwitamina":2}},
-  {k:"vitd", name:"Witamina D", unit:"pkt", target:2, from:{ryba:1.5,jaja:0.3,nabial:0.1}, tip:"w Polsce zwykle zaleca się suplementację witaminy D od września do kwietnia (dawkę ustal z pediatrą)", supp:{"Witamina D":2,"Multiwitamina":1}},
-  {k:"omega", name:"Omega-3 (DHA)", unit:"pkt", target:1, from:{ryba:1.5}, tip:"ryba morska 1–2 razy w tygodniu albo suplement DHA", supp:{"Omega-3 / DHA":1}, weekly:true},
+  {k:"vitc", name:"Witamina C", unit:"pkt", target:3, from:{owoce:1,warzywa:0.6,witc:1,ziemniaki:0.3}, tip:"papryka, kiwi, truskawki, kiszonki", },
+  {k:"vitd", name:"Witamina D", unit:"pkt", target:2, from:{ryba:1.5,jaja:0.3,nabial:0.1}, tip:"w Polsce zwykle zaleca się suplementację witaminy D od września do kwietnia (dawkę ustal z pediatrą)", supp:{"Witamina D 1000":2,"Witamina D":2}},
+  {k:"omega", name:"Omega-3 (DHA)", unit:"pkt", target:1, from:{ryba:1.5}, tip:"ryba morska 1–2 razy w tygodniu albo Equazen", supp:{"Equazen":1,"Omega-3 / DHA":1}, weekly:true},
 ];
 const SUGAR = {k:"sugar", name:"Słodycze i słodkie napoje", from:{slodkie:1,napoje_slodkie:0.7}, limit:1};
 
@@ -320,10 +338,12 @@ function delBtn(label, onConfirm, text="✕"){
 }
 
 // ================= Zapis =================
-let entries = [], store = null, downloads = null, mode = "local";
+let entries = [], all = [], store = null, downloads = null, mode = "local";
 const LS_KEY = "brzuszek.entries.v2";
 function lsLoad(){ try { const v2=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if (v2) return v2; const v1=JSON.parse(localStorage.getItem("brzuszek.entries.v1")||"[]"); return v1; } catch { return []; } }
-function lsSave(){ try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); } catch { toast("Nie udało się zapisać w pamięci telefonu"); } }
+function lsSave(){ try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch { toast("Nie udało się zapisać w pamięci telefonu"); } }
+// `all` trzyma też znaczniki usunięcia (potrzebne do synchronizacji między urządzeniami)
+function setAll(list){ all = list; entries = all.filter(e=>!e.deleted).map(normalize); }
 
 function normalize(e){
   const x = {...e};
@@ -339,35 +359,118 @@ function normalize(e){
 
 const chains = {};
 function serial(id, fn){ const p=(chains[id]||Promise.resolve()).then(fn,fn); chains[id]=p.catch(()=>{}); return p; }
+function putLocal(rec){ const i=all.findIndex(x=>x.id===rec.id); const next=[...all]; if (i>=0) next[i]=rec; else next.push(rec); setAll(next); lsSave(); renderAll(); scheduleSync(); }
 async function put(e){
   return serial(e.id, async () => {
     if (store){ try { const {id,...body}=e; await store.doc(id).set(body); return true; } catch(err){ toast(err?.code==="quota_exceeded"?"Brak miejsca w zapisie":"Nie udało się zapisać. Spróbuj jeszcze raz."); return false; } }
-    const i=entries.findIndex(x=>x.id===e.id); if (i>=0) entries[i]=e; else entries.push(e); lsSave(); renderAll(); return true;
+    putLocal({...e, updatedAt:new Date().toISOString()}); return true;
   });
 }
 async function del(id){
   return serial(id, async () => {
     if (store){ try { await store.doc(id).delete(); } catch { toast("Nie udało się usunąć"); } return; }
-    entries = entries.filter(x=>x.id!==id); lsSave(); renderAll();
+    if (!all.some(x=>x.id===id && !x.deleted)) return;
+    putLocal({id, deleted:true, updatedAt:new Date().toISOString()});
   });
 }
 async function initStore(){
-  entries = lsLoad().map(normalize); renderAll();
+  setAll(lsLoad()); renderAll();
   let db = null;
   try { db = window.claude?.use ? await window.claude.use("db") : null; } catch {}
   try { downloads = window.claude?.use ? await window.claude.use("downloads") : null; } catch {}
-  if (!db){ mode="local"; setSync(); try { navigator.storage?.persist?.(); } catch {} return; }
-  mode="cloud"; store = db.collection("entries");
+  if (!db){ mode="local"; setSync(); try { navigator.storage?.persist?.(); } catch {} ghInit(); return; }
+  mode="cloud"; store = db.collection("entries"); $("#c-sync").hidden = true;
   store.onSnapshot(snap => { entries = snap.docs.map(d => normalize({id:d.id, ...d.data()})); setSync(); renderAll(); },
     () => { $("#sync").textContent = "Brak połączenia z zapisem"; });
 }
 function setSync(){
   const n = entries.filter(e=>e.type!=="settings").length;
-  $("#sync").textContent = (mode==="cloud" ? "Zapis w chmurze" : "Zapis w tym urządzeniu") + " · " + n + " wpisów";
+  const where = mode==="cloud" ? "Zapis w chmurze" : gh.token ? "Synchronizacja z GitHub" : "Zapis w tym urządzeniu";
+  $("#sync").textContent = where + " · " + n + " wpisów";
   $("#backup-info").textContent = mode==="cloud"
     ? "Wpisy są zapisane na Twoim koncie Claude. Kopia przyda się, gdy zechcesz przenieść dane do wersji na telefonie."
-    : "Wpisy są tylko w pamięci tej przeglądarki. Dodaj stronę do ekranu głównego i co jakiś czas pobieraj kopię, żeby ich nie stracić.";
+    : gh.token ? "Wpisy są w pamięci telefonu i w pliku w Twoim prywatnym repo na GitHubie. Kopia jest dodatkowym zabezpieczeniem."
+    : "Wpisy są tylko w pamięci tej przeglądarki. Włącz synchronizację z GitHub albo co jakiś czas pobieraj kopię.";
 }
+
+// ================= Synchronizacja z GitHub =================
+// Dane leżą w pliku JSON w osobnym, PRYWATNYM repo. Każde urządzenie łączy się własnym tokenem.
+const GH_KEY = "brzuszek.github.v1";
+let gh = {repo:"", token:"", path:"dane/dziennik.json", lastSync:null};
+try { gh = {...gh, ...JSON.parse(localStorage.getItem(GH_KEY)||"{}")}; } catch {}
+const ghSave = () => { try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch {} };
+const ghStatus = t => { $("#gh-status").textContent = t; };
+const b64enc = str => { const bytes=new TextEncoder().encode(str); let bin=""; for (let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(bin); };
+const b64dec = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g,"")), c=>c.charCodeAt(0)));
+const stamp = e => e.updatedAt || e.createdAt || "";
+function mergeLists(a, b){
+  const m = new Map(); for (const e of [...a, ...b]){ const cur=m.get(e.id); if (!cur || stamp(e) > stamp(cur)) m.set(e.id, e); }
+  const cutoff = new Date(Date.now()-90*864e5).toISOString();
+  return [...m.values()].filter(e=>!(e.deleted && stamp(e) < cutoff)).sort((x,y)=>x.id<y.id?-1:1);
+}
+const sig = list => JSON.stringify([...list].sort((x,y)=>x.id<y.id?-1:1));
+function ghUrl(){ return `https://api.github.com/repos/${gh.repo}/contents/${gh.path.split("/").map(encodeURIComponent).join("/")}`; }
+function ghFetch(url, opts={}){ return fetch(url, {...opts, headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+gh.token,"X-GitHub-Api-Version":"2022-11-28",...(opts.body?{"Content-Type":"application/json"}:{})}, cache:"no-store"}); }
+let syncing=false, syncAgain=false, syncT=null;
+function scheduleSync(){ if (!gh.token || mode!=="local") return; clearTimeout(syncT); syncT=setTimeout(ghSync, 2500); }
+async function ghSync(){
+  if (!gh.token || mode!=="local") return;
+  if (syncing){ syncAgain=true; return; }
+  syncing=true; ghStatus("Synchronizuję…");
+  try {
+    for (let attempt=0; attempt<3; attempt++){
+      const r = await ghFetch(ghUrl()+"?t="+Date.now());
+      let remote=[], sha=null;
+      if (r.status===200){ const j=await r.json(); sha=j.sha; if (j.content) remote = JSON.parse(b64dec(j.content)).entries || []; }
+      else if (r.status===404){ const rr = await ghFetch(`https://api.github.com/repos/${gh.repo}`); if (!rr.ok) throw {code:"norepo"}; }
+      else throw {code:r.status};
+      const merged = mergeLists(remote, all);
+      if (sig(merged)!==sig(all)){ setAll(merged); lsSave(); renderAll(); }
+      if (sig(merged)!==sig(remote)){
+        const body = JSON.stringify({message:"Dziennik: aktualizacja "+new Date().toLocaleString("pl-PL"), sha:sha||undefined,
+          content: b64enc(JSON.stringify({app:"dziennik-brzuszka", version:2, updatedAt:new Date().toISOString(), entries:merged}, null, 1))});
+        const p = await ghFetch(ghUrl(), {method:"PUT", body});
+        if (p.status===409 || p.status===422) continue; // ktoś zapisał w międzyczasie: pobierz i scal jeszcze raz
+        if (!p.ok) throw {code:p.status};
+      }
+      gh.lastSync = new Date().toISOString(); ghSave();
+      ghStatus("Zsynchronizowano o "+new Date().toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"}));
+      return;
+    }
+    ghStatus("Nie udało się zapisać, bo inne urządzenie zapisuje w tym samym czasie. Spróbuję ponownie za chwilę.");
+    scheduleSync();
+  } catch(err){
+    const c = err?.code;
+    ghStatus(c===401 ? "Token jest nieprawidłowy albo wygasł. Wklej nowy token."
+      : c===403 ? "Token nie ma uprawnień do zapisu w tym repo. Nadaj mu „Contents: Read and write”."
+      : c==="norepo" ? "Nie widzę repozytorium "+gh.repo+". Sprawdź nazwę i czy token ma do niego dostęp."
+      : "Brak połączenia z GitHubem. Wpisy są bezpieczne w telefonie i wyślą się później.");
+  } finally {
+    syncing=false; if (syncAgain){ syncAgain=false; scheduleSync(); }
+  }
+}
+function ghInit(){
+  $("#gh-repo").value = gh.repo || "struzikmarcin-coder/dziennikbrzuszka-dane";
+  $("#gh-token").value = gh.token ? "••••••••" : "";
+  const connected = !!gh.token;
+  $("#gh-sync").hidden = !connected; $("#gh-off").hidden = !connected;
+  $("#gh-connect").textContent = connected ? "Zapisz zmiany" : "Połącz";
+  if (connected){ ghStatus(gh.lastSync ? "Ostatnia synchronizacja: "+new Date(gh.lastSync).toLocaleString("pl-PL") : "Połączono"); ghSync(); }
+  else ghStatus("Synchronizacja wyłączona.");
+  setSync();
+}
+$("#gh-connect").onclick = () => {
+  const repo = $("#gh-repo").value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,"");
+  const tok = $("#gh-token").value.trim();
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)){ ghStatus("Wpisz repo w formacie właściciel/nazwa."); return; }
+  if (!tok){ ghStatus("Wklej token."); return; }
+  gh.repo = repo; if (!tok.startsWith("••")) gh.token = tok;
+  ghSave(); ghInit();
+};
+$("#gh-sync").onclick = () => ghSync();
+$("#gh-off").onclick = () => { gh.token=""; gh.lastSync=null; ghSave(); ghInit(); toast("Synchronizacja wyłączona na tym urządzeniu"); };
+document.addEventListener("visibilitychange", () => { if (document.visibilityState==="visible") scheduleSync(); });
+setInterval(() => { if (document.visibilityState==="visible" && gh.token && mode==="local") ghSync(); }, 90000);
 
 // ================= Stan widoku =================
 let curDate = today();
@@ -396,10 +499,10 @@ function renderSlots(){
   for (const [slot,label] of SLOTS){
     const list = meals.filter(m=>m.slot===slot).sort((a,b)=>a.ts.localeCompare(b.ts));
     const head = el("div",{class:"slot-h"}, el("h3",{}, label, list.length? null : el("span",{},"brak wpisu")),
-      el("div",{class:"row",style:"flex:none;gap:4px"},
+      el("div",{class:"acts"},
         list.length ? delBtn("Usuń cały posiłek: "+label, async () => { for (const m of list) await del(m.id); toast(label+" usunięte"); }, "Usuń posiłek") : null,
         editor?.slot===slot ? null : el("button",{class:"ghost small",onclick:()=>{ editor={slot,picked:new Set(),extra:"",amount:"1",time:""}; renderSlots(); }}, "+ Dodaj")));
-    const wrap = el("div",{class:"slot"}, head);
+    const wrap = el("div",{class:"slot","data-slot":slot}, head);
     for (const m of list) for (let i=0;i<m.dishes.length;i++){
       const dsh = m.dishes[i];
       const meta = [m.source==="przedszkole" ? "przedszkole" : null, m.amount && m.amount<1 ? (m.amount===0.5?"zjadł połowę":"zjadł trochę") : null,
@@ -463,7 +566,7 @@ function renderSupps(){
     };
     box.append(b);
   }
-  const addB = el("button",{type:"button",class:"chip add"}, "+ inny");
+  const addB = el("button",{type:"button",class:"chip add"}, "+ inne");
   addB.onclick = () => {
     const inp = el("input",{placeholder:"nazwa suplementu",style:"width:auto;flex:1 1 160px"});
     const ok = el("button",{class:"ghost small",type:"button"},"Dodaj");
@@ -777,6 +880,7 @@ function correlateMood(list){
   const moods = Object.fromEntries(list.filter(e=>e.type==="mood").map(m=>[m.date,m]));
   const keys = {};
   const mark = (k, d) => { (keys[k] ||= new Set()).add(d); };
+  for (const sp of list.filter(e=>e.type==="supp")) for (const it of sp.items||[]) if (dates.includes(sp.date)) mark("Podano: "+it, sp.date);
   for (const d of dates){ const m=moods[d]; if (!m) continue;
     if (m.level && m.level<=2) mark("Gorsze samopoczucie (1–2)", d);
     for (const ev of m.events||[]) mark(ev, d);
@@ -820,7 +924,7 @@ function demoData(){
     const conflict = rnd()<0.3;
     out.push({id:"m"+d, type:"mood", date, level: conflict?2:(3+Math.floor(rnd()*2)), events: conflict?["Afera w przedszkolu"]:(rnd()<0.2?["Zmęczenie, mało snu"]:[])});
     if ((conflict && rnd()<0.7) || (dairy>=3 && rnd()<0.5)) out.push({id:"p"+d, type:"pain", date, ts:new Date(date+"T16:30").toISOString(), intensity:3, duration:30, location:"Wokół pępka", symptoms:[]});
-    if (rnd()<0.7) out.push({id:"s"+d, type:"supp", date, items:["Witamina D"]});
+    if (rnd()<0.7) out.push({id:"s"+d, type:"supp", date, items:["Witamina D 1000"]});
   }
   return out;
 }
@@ -833,12 +937,23 @@ function renderInsights(){
 $("#i-range").onchange = renderInsights; $("#i-win").onchange = renderInsights;
 
 // ================= Kopia zapasowa =================
-$("#b-export").onclick = async () => {
-  const json = JSON.stringify({app:"dziennik-brzuszka", version:2, exportedAt:new Date().toISOString(), entries}, null, 1);
-  const filename = "dziennik-brzuszka-"+today()+".json";
-  if (downloads){ try { await downloads.save({filename, data: json}); return; } catch { toast("Nie pobrano kopii"); return; } }
-  try { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([json],{type:"application/json"})); a.download=filename; document.body.append(a); a.click(); a.remove(); }
+async function saveFile(filename, data, type){
+  if (downloads){ try { await downloads.save({filename, data}); return; } catch { toast("Nie pobrano pliku"); return; } }
+  try { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type})); a.download=filename; document.body.append(a); a.click(); a.remove(); }
   catch { toast("Ta przeglądarka nie pozwala pobrać pliku"); }
+}
+$("#b-export").onclick = () => saveFile("dziennik-brzuszka-"+today()+".json", JSON.stringify({app:"dziennik-brzuszka", version:2, exportedAt:new Date().toISOString(), entries}, null, 1), "application/json");
+$("#b-csv").onclick = () => {
+  const q = v => '"'+String(v??"").replace(/"/g,'""')+'"';
+  const rows = [["data","godzina","rodzaj","posiłek","opis","szczegóły"]];
+  const hm = ts => { const d=new Date(ts); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+  for (const e of [...entries].sort((a,b)=>(a.date+(a.ts||"")).localeCompare(b.date+(b.ts||"")))){
+    if (e.type==="meal") rows.push([e.date, hm(e.ts), "posiłek", SLOT_LABEL[e.slot], e.dishes.map(d=>d.name).join("; "), [e.source==="przedszkole"?"przedszkole":"", e.amount<1?"zjadł "+e.amount*100+"%":"", e.dishes.flatMap(d=>d.allergens||[]).length?"alergeny: "+[...new Set(e.dishes.flatMap(d=>d.allergens||[]))].map(a=>ALLERGENS[a]).join(", "):""].filter(Boolean).join(", ")]);
+    else if (e.type==="pain") rows.push([e.date, hm(e.ts), "ból brzucha", "", "natężenie "+e.intensity+"/5, "+e.duration+" min, "+(e.location||""), [...(e.symptoms||[]), e.note].filter(Boolean).join(", ")]);
+    else if (e.type==="mood") rows.push([e.date, "", "samopoczucie", "", e.level? e.level+"/5" : "", [...(e.events||[]), e.note].filter(Boolean).join(", ")]);
+    else if (e.type==="supp") rows.push([e.date, "", "suplementy", "", (e.items||[]).join(", "), ""]);
+  }
+  saveFile("dziennik-brzuszka-"+today()+".csv", "\ufeff"+rows.map(r=>r.map(q).join(";")).join("\r\n"), "text/csv");
 };
 $("#b-import").onchange = async ev => {
   const f = ev.target.files[0]; if (!f) return;
