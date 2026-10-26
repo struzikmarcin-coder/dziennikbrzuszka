@@ -250,6 +250,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
   <button id="t-insights" data-v="insights">Wnioski</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
+<input type="file" id="photo-input" accept="image/*" aria-label="Zdjęcie posiłku" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0">
 
 <script>
 // ================= Słowniki =================
@@ -342,7 +343,7 @@ function delBtn(label, onConfirm, text="✕"){
 
 // ================= Zapis =================
 let entries = [], all = [], store = null, downloads = null, mode = "local";
-let sample = null, photoOK = false;
+let sample = null, photoOK = false, photoWhy = "Sprawdzam, czy rozpoznawanie zdjęć jest dostępne…";
 const LS_KEY = "brzuszek.entries.v2";
 function lsLoad(){ try { const v2=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if (v2) return v2; const v1=JSON.parse(localStorage.getItem("brzuszek.entries.v1")||"[]"); return v1; } catch { return []; } }
 function lsSave(){ try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch { toast("Nie udało się zapisać w pamięci telefonu"); } }
@@ -382,7 +383,15 @@ async function initStore(){
   let db = null;
   try { db = window.claude?.use ? await window.claude.use("db") : null; } catch {}
   try { downloads = window.claude?.use ? await window.claude.use("downloads") : null; } catch {}
-  try { sample = window.claude?.use ? await window.claude.use("sample") : null; const lim = sample ? await sample.limits().catch(()=>null) : null; photoOK = !!lim?.images; if (photoOK) renderAll(); } catch { photoOK = false; }
+  try {
+    sample = window.claude?.use ? await window.claude.use("sample") : null;
+    const lim = sample ? await sample.limits().catch(()=>null) : null;
+    photoOK = !!lim?.images;
+    photoWhy = !window.claude?.use ? "Rozpoznawanie zdjęć działa tylko w wersji aplikacji w Claude."
+      : !sample ? "Ta aplikacja Claude nie pozwala tu używać Claude. Otwórz link w przeglądarce, zalogowany do claude.ai."
+      : !photoOK ? "Na tym urządzeniu nie można wysyłać zdjęć do Claude. Spróbuj w przeglądarce na claude.ai." : "";
+  } catch { photoOK = false; photoWhy = "Rozpoznawanie zdjęć jest niedostępne."; }
+  renderAll();
   if (!db){ mode="local"; setSync(); try { navigator.storage?.persist?.(); } catch {} ghInit(); return; }
   mode="cloud"; store = db.collection("entries"); $("#c-sync").hidden = true;
   store.onSnapshot(snap => { entries = snap.docs.map(d => normalize({id:d.id, ...d.data()})); setSync(); renderAll(); },
@@ -525,12 +534,14 @@ function renderSlots(){
 function renderEditor(){
   const ed = editor;
   const box = el("div",{class:"editor"});
-  if (photoOK){
-    const inp = el("input",{type:"file",accept:"image/*",id:"ed-photo",hidden:true});
-    inp.onchange = () => { const f=inp.files[0]; if (f) recognizePhoto(ed, f); };
-    const lbl = el("label",{class:"photo-btn"+(ed.photoBusy?" busy":"")}, ed.photoBusy ? "Rozpoznaję jedzenie…" : "Zrób lub wybierz zdjęcie posiłku", inp);
-    if (ed.photoBusy) inp.disabled = true;
-    box.append(lbl);
+  {
+    const btn = el("button",{type:"button",class:"photo-btn"+(ed.photoBusy?" busy":""),id:"ed-photo-btn"}, ed.photoBusy ? "Rozpoznaję jedzenie…" : "Zrób lub wybierz zdjęcie posiłku");
+    btn.onclick = () => {
+      if (ed.photoBusy) return;
+      if (!photoOK){ ed.photoMsg = photoWhy; renderSlots(); return; }
+      photoTarget = ed; const inp = $("#photo-input"); inp.value = ""; inp.click();
+    };
+    box.append(btn);
     if (ed.photoMsg) box.append(el("p",{class:"muted",style:"margin:0"}, ed.photoMsg));
   }
   for (const g in CATALOG){
@@ -566,6 +577,9 @@ function renderEditor(){
 }
 
 // Rozpoznawanie jedzenia ze zdjęcia (Claude na koncie oglądającego)
+// Jedno stałe pole pliku poza przerysowywanym formularzem, żeby wybór zdjęcia nie ginął przy odświeżeniu widoku.
+let photoTarget = null;
+$("#photo-input").onchange = e => { const f = e.target.files[0]; const ed = photoTarget; if (f && ed) recognizePhoto(ed, f); };
 async function shrinkImage(file){
   try {
     const url = URL.createObjectURL(file);
@@ -603,6 +617,7 @@ Jeśli na zdjęciu nie ma jedzenia, zwróć {"dishes":[], "note":"Nie widzę jed
       : c==="image_rejected" ? "Nie udało się odczytać tego zdjęcia. Spróbuj innego (JPG lub PNG)."
       : c==="session_expired" ? "Zaloguj się ponownie do Claude i spróbuj jeszcze raz."
       : "Nie udało się rozpoznać jedzenia. Spróbuj ponownie albo wpisz dania ręcznie.";
+    ed.photoMsg += " (kod: " + (c || e?.message || "?") + ")";
   } finally {
     ed.photoBusy = false;
     if (editor===ed) renderSlots();
