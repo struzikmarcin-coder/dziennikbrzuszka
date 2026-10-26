@@ -99,6 +99,8 @@ nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent
 .pill.w{background:var(--warn-soft);color:var(--warn)}
 .pill.m{background:var(--mood-soft);color:var(--mood)}
 .photo-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:999px;padding:11px 16px;font:800 1rem var(--body);cursor:pointer;text-align:center}
+.photo-btn{position:relative;overflow:hidden}
+.photo-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
 .photo-btn.busy{opacity:.7;cursor:progress}
 .photo-btn::before{content:"";width:18px;height:14px;border:2.5px solid currentColor;border-radius:4px;box-sizing:border-box;background:radial-gradient(circle at 50% 55%,currentColor 0 2.5px,transparent 3px)}
 .editor{display:flex;flex-direction:column;gap:10px;border:2px dashed var(--accent);background:var(--mint);border-radius:18px;padding:12px}
@@ -250,7 +252,6 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
   <button id="t-insights" data-v="insights">Wnioski</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
-<input type="file" id="photo-input" accept="image/*" aria-label="Zdjęcie posiłku" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0">
 
 <script>
 // ================= Słowniki =================
@@ -535,13 +536,18 @@ function renderEditor(){
   const ed = editor;
   const box = el("div",{class:"editor"});
   {
-    const btn = el("button",{type:"button",class:"photo-btn"+(ed.photoBusy?" busy":""),id:"ed-photo-btn"}, ed.photoBusy ? "Rozpoznaję jedzenie…" : "Zrób lub wybierz zdjęcie posiłku");
-    btn.onclick = () => {
-      if (ed.photoBusy) return;
-      if (!photoOK){ ed.photoMsg = photoWhy; renderSlots(); return; }
-      photoTarget = ed; const inp = $("#photo-input"); inp.value = ""; inp.click();
-    };
-    box.append(btn);
+    const label = ed.photoBusy ? "Rozpoznaję jedzenie…" : "Zrób lub wybierz zdjęcie posiłku";
+    if (photoOK && !ed.photoBusy){
+      // Prawdziwe pole pliku rozciągnięte na cały przycisk: stuknięcie trafia bezpośrednio w nie (pewne na iOS i Androidzie)
+      const inp = el("input",{type:"file",accept:"image/*",id:"ed-photo","aria-label":label,class:"photo-input"});
+      inp.onchange = () => { const f = inp.files[0]; if (f) recognizePhoto(ed, f); };
+      box.append(el("div",{class:"photo-btn"}, label, inp));
+      if (!ed.photoMsg) box.append(el("small",{class:"muted"},"Nic się nie otwiera? W aplikacji Claude na Androidzie wybór plików bywa zablokowany. Otwórz ten link w Chrome, zalogowany do claude.ai."));
+    } else {
+      const btn = el("button",{type:"button",class:"photo-btn"+(ed.photoBusy?" busy":""),id:"ed-photo-btn"}, label);
+      btn.onclick = () => { if (!ed.photoBusy){ ed.photoMsg = photoWhy || "Rozpoznawanie zdjęć jest niedostępne."; renderSlots(); } };
+      box.append(btn);
+    }
     if (ed.photoMsg) box.append(el("p",{class:"muted",style:"margin:0"}, ed.photoMsg));
   }
   for (const g in CATALOG){
@@ -577,9 +583,7 @@ function renderEditor(){
 }
 
 // Rozpoznawanie jedzenia ze zdjęcia (Claude na koncie oglądającego)
-// Jedno stałe pole pliku poza przerysowywanym formularzem, żeby wybór zdjęcia nie ginął przy odświeżeniu widoku.
-let photoTarget = null;
-$("#photo-input").onchange = e => { const f = e.target.files[0]; const ed = photoTarget; if (f && ed) recognizePhoto(ed, f); };
+
 async function shrinkImage(file){
   try {
     const url = URL.createObjectURL(file);
