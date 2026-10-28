@@ -84,6 +84,14 @@ nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--accent
 .slot[data-slot="sniadanie"]{--slot-bg:var(--sun)}.slot[data-slot="drugie"]{--slot-bg:var(--mint)}.slot[data-slot="obiad"]{--slot-bg:var(--peach)}.slot[data-slot="przekaska"]{--slot-bg:var(--lilac)}.slot[data-slot="kolacja"]{--slot-bg:var(--sky)}
 .slot-h h3::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--slot-dot,var(--accent));margin-right:8px;vertical-align:1px}
 .slot[data-slot="sniadanie"]{--slot-dot:#F2B705}.slot[data-slot="drugie"]{--slot-dot:#16A17A}.slot[data-slot="obiad"]{--slot-dot:#F07A45}.slot[data-slot="przekaska"]{--slot-dot:#8B6CF0}.slot[data-slot="kolacja"]{--slot-dot:#3D8BFD}
+.card.c-med{background:linear-gradient(180deg,var(--sky),var(--surface) 70%)}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl-row{display:grid;grid-template-columns:52px 12px 1fr auto;gap:8px;align-items:start;padding:6px 0}
+.tl-row time{font-weight:800;font-variant-numeric:tabular-nums}
+.tl-dot{width:12px;height:12px;border-radius:50%;margin-top:6px;background:var(--accent)}
+.tl-row.k-meal .tl-dot{background:#F2B705}.tl-row.k-pain .tl-dot{background:var(--pain)}.tl-row.k-med .tl-dot{background:#3D8BFD}.tl-row.k-sym .tl-dot{background:#B5179E}
+.tl-row .what{min-width:0;overflow-wrap:anywhere}.tl-row small{display:block;color:var(--muted)}
+.evrow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line)}
 .card.c-supp{background:linear-gradient(180deg,var(--mint),var(--surface) 70%)}.card.c-mood{background:linear-gradient(180deg,var(--lilac),var(--surface) 70%)}.card.c-pain{background:linear-gradient(180deg,var(--peach),var(--surface) 70%)}
 .acts{display:flex;gap:4px;flex:none;align-items:center}
 .slot-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -153,19 +161,6 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
       <div id="slots"></div>
     </div>
 
-    <div class="card c-supp">
-      <div class="card-h"><h2>Suplementy</h2><span class="muted">stuknij, co dziś podałeś</span></div>
-      <div class="chips" id="supps"></div>
-    </div>
-
-    <div class="card c-mood">
-      <div class="card-h"><h2>Samopoczucie i zdarzenia</h2></div>
-      <div class="scale mood" id="mood-scale"></div>
-      <span class="label">Co się działo?</span>
-      <div class="chips" id="mood-events"></div>
-      <label>Notatka<input id="mood-note" placeholder="np. pokłócił się z kolegą przy obiedzie"></label>
-    </div>
-
     <div class="card c-pain">
       <div class="card-h"><h2>Ból brzucha</h2><button class="ghost small" id="pain-toggle">+ Dodaj ból</button></div>
       <div id="pains"></div>
@@ -182,6 +177,40 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
         <label>Notatka<input id="p-note" placeholder="np. po powrocie z przedszkola"></label>
         <div class="row"><button class="btn pain" type="submit">Zapisz ból</button><button class="ghost" type="button" id="pain-cancel">Anuluj</button></div>
       </form>
+    </div>
+
+    <div class="card c-med">
+      <div class="card-h"><h2>Leki i objawy</h2></div>
+      <div class="chips" id="ev-add"></div>
+      <div id="events"></div>
+      <form id="f-ev" class="editor" hidden>
+        <h3 id="ev-title"></h3>
+        <label>Godzina<input type="time" id="ev-time" required></label>
+        <div id="ev-med" class="chipgroup"><span>Jaki lek</span><div class="chips" id="ev-meds"></div>
+          <label>Inny lek<input id="ev-medname" placeholder="nazwa leku"></label>
+          <label>Dawka<input id="ev-dose" placeholder="np. 1 tabletka, 5 ml"></label></div>
+        <label id="ev-tempwrap">Temperatura (°C)<input id="ev-temp" type="number" step="0.1" min="34" max="43" inputmode="decimal" placeholder="np. 38,2"></label>
+        <label>Notatka<input id="ev-note" placeholder="np. po śniadaniu, w przedszkolu"></label>
+        <div class="row"><button class="btn" type="submit">Zapisz</button><button class="ghost" type="button" id="ev-cancel">Anuluj</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>Oś dnia</h2><span class="muted">wszystko po kolei, z godzinami</span></div>
+      <div id="timeline"></div>
+    </div>
+
+    <div class="card c-supp">
+      <div class="card-h"><h2>Suplementy</h2><span class="muted">stuknij, co dziś podałeś</span></div>
+      <div class="chips" id="supps"></div>
+    </div>
+
+    <div class="card c-mood">
+      <div class="card-h"><h2>Samopoczucie i zdarzenia</h2></div>
+      <div class="scale mood" id="mood-scale"></div>
+      <span class="label">Co się działo?</span>
+      <div class="chips" id="mood-events"></div>
+      <label>Notatka<input id="mood-note" placeholder="np. pokłócił się z kolegą przy obiedzie"></label>
     </div>
 
     <div class="card">
@@ -212,12 +241,17 @@ details summary{cursor:pointer;color:var(--accent);font-weight:700}
       <div id="diet"></div>
     </div>
     <div class="card">
-      <h2>Co poprzedza ból brzucha: jedzenie</h2>
+      <h2>Co poprzedza objawy: jedzenie</h2>
+      <label style="max-width:240px">Objaw<select id="i-sym"><option value="bol">Ból brzucha</option><option value="wymioty">Wymioty</option><option value="any" selected>Ból, wymioty lub biegunka</option></select></label>
       <label style="max-width:240px">Okno czasowe przed bólem<select id="i-win"><option value="3">0–3 h</option><option value="6" selected>0–6 h</option><option value="12">0–12 h</option><option value="24">0–24 h</option></select></label>
       <div id="corr"></div>
     </div>
     <div class="card">
-      <h2>Co poprzedza ból brzucha: emocje, zdarzenia, suplementy</h2>
+      <h2>Leki i objawy w okresie</h2>
+      <div id="medsum"></div>
+    </div>
+    <div class="card">
+      <h2>Co poprzedza objawy: emocje, zdarzenia, leki</h2>
       <div id="corr-mood"></div>
     </div>
     <p class="note">To wskazówki do rozmowy z pediatrą, a nie diagnoza. Wzór oznacza tylko, że coś często pojawiało się przed bólem. Silny ból, gorączka, wymioty, krew w stolcu albo spadek wagi to powód, by od razu skontaktować się z lekarzem.</p>
@@ -272,6 +306,8 @@ const CATALOG = {
 const DEFAULT_SUPPS = ["Żelazo","Equazen","Hitaxa","Witamina D 1000"];
 const MOOD_LEVELS = [[1,"Bardzo źle"],[2,"Słabo"],[3,"Zwyczajnie"],[4,"Dobrze"],[5,"Świetnie"]];
 const MOOD_EVENTS = ["Afera w przedszkolu","Kłótnia z rówieśnikiem","Kłótnia w domu","Płacz przy rozstaniu","Nowa sytuacja / zmiana","Pośpiech, stres rano","Zmęczenie, mało snu","Infekcja / katar","Duże emocje / ekscytacja","Zaparcie / brak kupy"];
+const MEDS = ["No-Spa","Paracetamol","Ibuprofen","Espumisan","Smecta","Debridat"];
+const EV_KINDS = {lek:"Lek", wymioty:"Wymioty", biegunka:"Biegunka", goraczka:"Gorączka", inne:"Inny objaw"};
 const SYMPTOMS = ["wzdęcia","nudności","wymioty","biegunka","zaparcie","gorączka","płacz"];
 
 // Grupy produktów rozpoznawane po fragmentach słów (orientacyjnie)
@@ -502,7 +538,7 @@ function renderDay(){
   const lbl = rel + d.toLocaleDateString("pl-PL",{weekday:"long", day:"numeric", month:"long"});
   $("#d-label").textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
   $("#d-date").value = curDate;
-  renderSlots(); renderSupps(); renderMood(); renderPains(); renderDayNutri();
+  renderSlots(); renderSupps(); renderMood(); renderPains(); renderEvents(); renderTimeline(); renderDayNutri();
 }
 
 function renderSlots(){
@@ -668,6 +704,82 @@ function renderMood(){
   const note = $("#mood-note");
   if (document.activeElement!==note) note.value = m.note||"";
   note.onchange = () => saveMood({note: note.value.trim()});
+}
+
+// ---------- Leki i objawy z godziną ----------
+let evKind = null, evMed = null;
+const hmOf = ts => { const d=new Date(ts); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+function evText(e){
+  if (e.kind==="lek") return [e.name||"Lek", e.dose].filter(Boolean).join(", ");
+  if (e.kind==="goraczka") return "Gorączka" + (e.temp ? " "+String(e.temp).replace(".",",")+" °C" : "");
+  return e.kind==="inne" ? (e.note || "Inny objaw") : EV_KINDS[e.kind];
+}
+function renderEvents(){
+  const add = $("#ev-add"); add.replaceChildren();
+  for (const k in EV_KINDS) add.append(el("button",{type:"button",class:"chip add",onclick:()=>openEv(k)}, "+ "+EV_KINDS[k]));
+  const box = $("#events"); box.replaceChildren();
+  const list = dayEntries("event").sort((a,b)=>a.ts.localeCompare(b.ts));
+  for (const e of list) box.append(el("div",{class:"evrow"},
+    el("div",{}, el("b",{}, hmOf(e.ts)), " ", el("span",{class:"pill "+(e.kind==="lek"?"m":"p")}, EV_KINDS[e.kind]), " ", e.kind==="lek" ? evText(e) : e.kind==="goraczka" && e.temp ? String(e.temp).replace(".",",")+" °C" : e.kind==="inne" ? e.note : "",
+      e.note && e.kind!=="inne" ? el("small",{style:"display:block;color:var(--muted)"}, e.note) : null),
+    delBtn("Usuń wpis", ()=>del(e.id))));
+  const meds = $("#ev-meds"); meds.replaceChildren();
+  for (const m of [...new Set([...MEDS, ...(settings().meds||[])])]){
+    meds.append(el("button",{type:"button",class:"chip","aria-pressed":String(evMed===m),onclick:()=>{ evMed = evMed===m?null:m; $("#ev-medname").value=""; renderEvents(); }}, m));
+  }
+}
+function openEv(kind){
+  evKind = kind; evMed = null;
+  $("#ev-title").textContent = EV_KINDS[kind];
+  $("#ev-med").hidden = kind!=="lek"; $("#ev-tempwrap").hidden = kind!=="goraczka";
+  $("#ev-time").value = curDate===today() ? nowHM() : "12:00";
+  $("#ev-medname").value = ""; $("#ev-dose").value = ""; $("#ev-temp").value = ""; $("#ev-note").value = "";
+  $("#ev-note").placeholder = kind==="inne" ? "co się stało, np. wysypka, kaszel" : "np. po śniadaniu, w przedszkolu";
+  $("#f-ev").hidden = false; renderEvents();
+  $("#f-ev").scrollIntoView({block:"nearest"});
+}
+function setupEvForm(){
+  $("#ev-cancel").onclick = () => { $("#f-ev").hidden = true; };
+  $("#ev-medname").oninput = () => { if (evMed){ evMed=null; renderEvents(); } };
+  $("#f-ev").onsubmit = async ev => {
+    ev.preventDefault();
+    const name = evKind==="lek" ? (evMed || $("#ev-medname").value.trim()) : "";
+    if (evKind==="lek" && !name){ toast("Wybierz albo wpisz nazwę leku"); return; }
+    if (evKind==="inne" && !$("#ev-note").value.trim()){ toast("Opisz objaw w notatce"); return; }
+    const temp = parseFloat(String($("#ev-temp").value).replace(",","."));
+    const e = {id:uid(), type:"event", kind:evKind, date:curDate, ts:new Date(curDate+"T"+$("#ev-time").value).toISOString(),
+      name, dose:$("#ev-dose").value.trim(), temp: isNaN(temp)?null:temp, note:$("#ev-note").value.trim(), createdAt:new Date().toISOString()};
+    if (!(await put(e))) return;
+    if (evKind==="lek" && !MEDS.includes(name)){ const st=settings(); if (!(st.meds||[]).includes(name)) await put({...st, meds:[...(st.meds||[]), name]}); }
+    $("#f-ev").hidden = true;
+    toast(EV_KINDS[evKind]+" zapisane o "+$("#ev-time").value + (evKind==="wymioty"||evKind==="goraczka" ? ". Jeśli objawy się powtarzają, skontaktuj się z lekarzem." : ""));
+  };
+}
+const ago = ms => { const m=Math.round(ms/60000); if (m<60) return m+" min"; const h=Math.floor(m/60), r=m%60; return h+" h"+(r?" "+r+" min":""); };
+function renderTimeline(){
+  const box = $("#timeline"); box.replaceChildren();
+  const items = [];
+  for (const m of dayEntries("meal")) items.push({t:Date.parse(m.ts), k:"meal", title:SLOT_LABEL[m.slot], sub:m.dishes.map(d=>d.name).join(", ")});
+  for (const p of dayEntries("pain")) items.push({t:Date.parse(p.ts), k:"pain", sym:true, title:"Ból brzucha "+p.intensity+"/5", sub:[p.location!=="Nie wiem"?p.location:"", ...(p.symptoms||[])].filter(Boolean).join(", ")});
+  for (const e of dayEntries("event")) items.push({t:Date.parse(e.ts), k:e.kind==="lek"?"med":"sym", sym:e.kind!=="lek", title:e.kind==="lek"?"Lek: "+evText(e):evText(e), sub:e.kind==="inne"?"":e.note});
+  if (!items.length){ box.append(el("p",{class:"empty"},"Tu pojawią się posiłki, leki i objawy z tego dnia w kolejności godzin.")); return; }
+  items.sort((a,b)=>a.t-b.t);
+  // wcześniejsze wpisy (też z poprzedniego dnia) do wyliczenia „po leku / po posiłku”
+  const allTimed = entries.filter(e=>["meal","event"].includes(e.type)).map(e=>({e,t:Date.parse(e.ts)}));
+  const tl = el("div",{class:"tl"});
+  for (const it of items){
+    let rel = [];
+    if (it.sym){
+      const lastMed = allTimed.filter(x=>x.e.type==="event"&&x.e.kind==="lek"&&x.t<=it.t&&it.t-x.t<=12*3600e3).sort((a,b)=>b.t-a.t)[0];
+      const lastMeal = allTimed.filter(x=>x.e.type==="meal"&&x.t<=it.t&&it.t-x.t<=12*3600e3).sort((a,b)=>b.t-a.t)[0];
+      if (lastMed) rel.push(ago(it.t-lastMed.t)+" po "+(lastMed.e.name||"leku"));
+      if (lastMeal) rel.push(ago(it.t-lastMeal.t)+" po: "+SLOT_LABEL[lastMeal.e.slot].toLowerCase());
+    }
+    const sub = [it.sub, rel.join(" · ")].filter(Boolean);
+    tl.append(el("div",{class:"tl-row k-"+it.k}, el("time",{},hmOf(it.t)), el("span",{class:"tl-dot"}),
+      el("div",{class:"what"}, el("b",{},it.title), sub.map(x=>el("small",{},x)))));
+  }
+  box.append(tl);
 }
 
 function renderPains(){
@@ -920,10 +1032,15 @@ function mealKeys(m){
   return ks;
 }
 function keyLabel(k){ const [t,v]=[k.slice(0,1), k.slice(2)]; return t==="g" ? GROUP_LABEL[v]||v : t==="a" ? "Alergen: "+(ALLERGENS[v]||v) : v; }
+function symptomList(list){
+  const v = $("#i-sym")?.value || "any";
+  return list.filter(e => (e.type==="pain" && v!=="wymioty") || (e.type==="event" && (e.kind==="wymioty" ? v!=="bol" : e.kind==="biegunka" && v==="any")));
+}
+const symName = () => ({bol:"ból brzucha", wymioty:"wymioty", any:"objaw"})[$("#i-sym")?.value || "any"];
 function correlate(list, hours){
   const W = hours*3600e3;
   const meals = list.filter(e=>e.type==="meal").map(m=>({...m,t:Date.parse(m.ts)}));
-  const pains = list.filter(e=>e.type==="pain").map(p=>({...p,t:Date.parse(p.ts)}));
+  const pains = symptomList(list).map(p=>({...p,t:Date.parse(p.ts)}));
   if (!meals.length) return {pains:pains.length, rows:[]};
   const lastT = Math.max(...meals.map(m=>m.t), ...pains.map(p=>p.t));
   const followed = m => pains.some(p=>p.t>=m.t && p.t<=m.t+W);
@@ -944,19 +1061,22 @@ function renderCorr(list){
   const hours = Number($("#i-win").value);
   const box=$("#corr"); box.replaceChildren();
   const r=correlate(list, hours);
-  if (r.pains<2){ box.append(el("p",{class:"empty"}, `Potrzebne są co najmniej 2 zapisane bóle brzucha i kilka dni posiłków (teraz bólów: ${r.pains}). Zapisuj każdy epizod, nawet lekki.`)); return; }
-  box.append(el("p",{style:"margin:0"}, `Ból pojawił się w ciągu ${hours} h po ${r.followed} z ${r.eligible} posiłków (${Math.round(r.base*100)}%). Wyżej w tabeli są produkty i grupy, po których zdarzało się to częściej niż zwykle.`));
+  if (r.pains<2){ box.append(el("p",{class:"empty"}, `Potrzebne są co najmniej 2 zapisane epizody i kilka dni posiłków (teraz: ${r.pains}). Zapisuj każdy epizod, nawet lekki.`)); return; }
+  box.append(el("p",{style:"margin:0"}, `Wybrany objaw (${symName()}) pojawił się w ciągu ${hours} h po ${r.followed} z ${r.eligible} posiłków (${Math.round(r.base*100)}%). Wyżej w tabeli są produkty i grupy, po których zdarzało się to częściej niż zwykle.`));
   box.append(table([{t:"Produkt / grupa"},{t:"Ból po",n:1},{t:"Odsetek",n:1},{t:"Ryzyko",n:1},{t:""}],
     r.rows.slice(0,14).map(x=>el("tr",{}, el("td",{class:"name"}, x.bold?el("b",{},x.name):x.name), el("td",{class:"n"},`${x.f}/${x.n}`), el("td",{class:"n"},Math.round(x.rate*100)+"%"), el("td",{class:"n"},"×"+fmt1(x.lift)), el("td",{},liftTag(x.lift,x.f))))));
   box.append(el("small",{class:"muted"},"„Ból po” = ile razy po zjedzeniu był ból / ile razy zjedzone. „Ryzyko” = ile razy częściej niż po przeciętnym posiłku. Grupy i alergeny są pogrubione. Liczone dla rzeczy zjedzonych co najmniej 3 razy."));
 }
 function correlateMood(list){
-  const dates = [...new Set(list.filter(e=>["meal","mood","pain"].includes(e.type)).map(e=>e.date))];
-  const painDays = new Set(list.filter(e=>e.type==="pain").map(e=>e.date));
+  const dates = [...new Set(list.filter(e=>["meal","mood","pain","event"].includes(e.type)).map(e=>e.date))];
+  const painDays = new Set(symptomList(list).map(e=>e.date));
   const moods = Object.fromEntries(list.filter(e=>e.type==="mood").map(m=>[m.date,m]));
   const keys = {};
   const mark = (k, d) => { (keys[k] ||= new Set()).add(d); };
   for (const sp of list.filter(e=>e.type==="supp")) for (const it of sp.items||[]) if (dates.includes(sp.date)) mark("Podano: "+it, sp.date);
+  // lek podany po objawie nie jest jego przyczyną: liczymy tylko dni, gdy lek był przed pierwszym objawem
+  const firstSym = {}; for (const s of symptomList(list)){ const t=Date.parse(s.ts); if (!(s.date in firstSym) || t<firstSym[s.date]) firstSym[s.date]=t; }
+  for (const m of list.filter(e=>e.type==="event"&&e.kind==="lek")) if (dates.includes(m.date) && !(Date.parse(m.ts) >= (firstSym[m.date] ?? Infinity))) mark("Lek przed objawem: "+m.name, m.date);
   for (const d of dates){ const m=moods[d]; if (!m) continue;
     if (m.level && m.level<=2) mark("Gorsze samopoczucie (1–2)", d);
     for (const ev of m.events||[]) mark(ev, d);
@@ -1004,13 +1124,29 @@ function demoData(){
   }
   return out;
 }
+function renderMedSum(list){
+  const box = $("#medsum"); box.replaceChildren();
+  const from = addDays(today(), -(Number($("#i-range").value)-1));
+  const evs = list.filter(e=>e.type==="event" && e.date>=from);
+  const pains = list.filter(e=>e.type==="pain" && e.date>=from);
+  if (!evs.length && !pains.length){ box.append(el("p",{class:"empty"},"Brak leków i objawów w tym okresie.")); return; }
+  const counts = {};
+  const add = (k, e) => { (counts[k] ||= []).push(e); };
+  for (const p of pains) add("Ból brzucha", p);
+  for (const e of evs) add(e.kind==="lek" ? "Lek: "+(e.name||"inny") : EV_KINDS[e.kind] + (e.kind==="inne"&&e.note?": "+e.note:""), e);
+  const rows = Object.entries(counts).sort((a,b)=>b[1].length-a[1].length).map(([k,arr])=>{
+    const last = arr.sort((a,b)=>b.ts.localeCompare(a.ts))[0];
+    return el("tr",{}, el("td",{class:"name"}, k), el("td",{class:"n"}, String(arr.length)), el("td",{}, new Date(last.ts).toLocaleString("pl-PL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})));
+  });
+  box.append(table([{t:"Co"},{t:"Ile razy",n:1},{t:"Ostatnio"}], rows));
+}
 function renderInsights(){
   const real = entries.some(e=>e.type==="meal");
   const data = real ? entries : demoData();
   $("#demo-banner").hidden = real;
-  renderDiet(data); renderCorr(data); renderCorrMood(data);
+  renderDiet(data); renderCorr(data); renderCorrMood(data); renderMedSum(data);
 }
-$("#i-range").onchange = renderInsights; $("#i-win").onchange = renderInsights;
+$("#i-range").onchange = renderInsights; $("#i-win").onchange = renderInsights; $("#i-sym").onchange = renderInsights;
 
 // ================= Kopia zapasowa =================
 async function saveFile(filename, data, type){
@@ -1027,6 +1163,7 @@ $("#b-csv").onclick = () => {
     if (e.type==="meal") rows.push([e.date, hm(e.ts), "posiłek", SLOT_LABEL[e.slot], e.dishes.map(d=>d.name).join("; "), [e.source==="przedszkole"?"przedszkole":"", e.amount<1?"zjadł "+e.amount*100+"%":"", e.dishes.flatMap(d=>d.allergens||[]).length?"alergeny: "+[...new Set(e.dishes.flatMap(d=>d.allergens||[]))].map(a=>ALLERGENS[a]).join(", "):""].filter(Boolean).join(", ")]);
     else if (e.type==="pain") rows.push([e.date, hm(e.ts), "ból brzucha", "", "natężenie "+e.intensity+"/5, "+e.duration+" min, "+(e.location||""), [...(e.symptoms||[]), e.note].filter(Boolean).join(", ")]);
     else if (e.type==="mood") rows.push([e.date, "", "samopoczucie", "", e.level? e.level+"/5" : "", [...(e.events||[]), e.note].filter(Boolean).join(", ")]);
+    else if (e.type==="event") rows.push([e.date, hm(e.ts), e.kind==="lek"?"lek":"objaw", "", evText(e), [e.kind!=="inne"?e.note:""].filter(Boolean).join(", ")]);
     else if (e.type==="supp") rows.push([e.date, "", "suplementy", "", (e.items||[]).join(", "), ""]);
   }
   saveFile("dziennik-brzuszka-"+today()+".csv", "\ufeff"+rows.map(r=>r.map(q).join(";")).join("\r\n"), "text/csv");
@@ -1061,6 +1198,7 @@ function renderAll(){
   if (!$("#v-insights").hidden) renderInsights();
 }
 setupPainForm();
+setupEvForm();
 initStore();
 </script>
 
